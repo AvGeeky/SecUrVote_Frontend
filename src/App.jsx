@@ -14,7 +14,7 @@ import VotingInstructionss from "./pages/VotingInstructionss.jsx";
 
 function App() {
     return (
-        <Router basename="/securvotepro">
+        <Router>
             <Routes>
                 {/* Home page route */}
                 <Route path="/" element={<VotingHeader />} />
