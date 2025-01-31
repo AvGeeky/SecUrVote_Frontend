@@ -46,6 +46,7 @@ function PersonalInfo() {
 
                 if (status === 401 && data.message === "TO") {
                     setErrorMessage("Session expired. Redirecting to login...");
+                    alert("Token expired or invalid. Please log in again.");
                     setTimeout(() => {
                         navigate("/login");
                     }, 2000);

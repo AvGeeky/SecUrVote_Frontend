@@ -94,6 +94,7 @@ function LoginForm() {
             if (error.response?.status === 401) {
                 if (message === "TO") {
                     setError("Session expired. Redirecting to login...");
+                    alert("Token expired or invalid. Please log in again.");
                     setTimeout(() => {
                         navigate("/login");
                     }, 2000);
