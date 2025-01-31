@@ -51,6 +51,7 @@ export default function RegistrationPage() {
             // Handle specific error scenarios
             if (error.response?.data?.message === "TO") {
                 setErrorMessage("Session expired. Please log in again.");
+                alert("Token expired or invalid. Please log in again.");
                 // Redirect to login page after a short delay (if necessary)
                 setTimeout(() => {
                     navigate("/login");
@@ -89,6 +90,7 @@ export default function RegistrationPage() {
             // Handle specific errors from the backend
             if (error.response?.data?.message === "TO") {
                 setErrorMessage("Session expired. Please log in again.");
+                alert("Token expired or invalid. Please log in again.");
                 // Redirect to login page after a short delay (if necessary)
                 setTimeout(() => {
                     navigate("/login");  // Redirect to the login page
@@ -136,6 +138,7 @@ export default function RegistrationPage() {
             // Handle specific errors: network issues, server errors, etc.
             if (error.response?.data?.message === "TO") {
                 setErrorMessage("Session expired. Please log in again.");
+                alert("Token expired or invalid. Please log in again.");
                 // Redirect to login page after a short delay (if necessary)
                 setTimeout(() => {
                     navigate("/login");

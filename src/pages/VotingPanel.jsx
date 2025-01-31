@@ -64,6 +64,9 @@ export default function VotingPanel() {
 
                         if (errorMessage === "TO") {
                             alert("Token expired or invalid. Please log in again.");
+                            setTimeout(() => {
+                                navigate("/login");
+                            }, 2000);
                         } else if (errorMessage === "Error_E") {
                             alert("An error occurred processing the election data. Please try again.");
                         } else if (errorMessage === "Not Authorised") {
@@ -140,6 +143,9 @@ export default function VotingPanel() {
 
                     if (errorMessage === "TO") {
                         alert("Token expired or invalid. Please log in again.");
+                        setTimeout(() => {
+                            navigate("/login");
+                        }, 2000);
                     } else if (errorMessage === "Error_E") {
                         alert("There was an error processing your request. Please try again.");
                     } else if (errorMessage === "not authorised") {
