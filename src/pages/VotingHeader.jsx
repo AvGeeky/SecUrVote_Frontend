@@ -108,7 +108,7 @@ export function VotingHeader() {
                             { name: 'About', path: '/about' },
                             { name: 'Features', path: '/features' },
                             { name: 'Steps', path: '/voting-steps' },
-                            { name: 'Verify your Vote', path: '/voter-list' },
+                            { name: 'Verify', path: '/voter-list' },
                         ].map((item, index) => (
                             <motion.button
                                 key={item.name}
@@ -125,51 +125,51 @@ export function VotingHeader() {
                             </motion.button>
                         ))}
                         <div className="relative">
-                            <motion.button
-                                variants={navButtonVariants}
-                                whileHover="hover"
-                                whileTap="tap"
-                                onClick={() => setShowDropdown(!showDropdown)}
-                                className="text-lg text-pink-200 hover:text-white transition-colors duration-300 px-4 py-2 rounded-lg bg-purple-700/50 hover:bg-purple-600/50 flex items-center gap-2"
-                            >
-                                <User className="w-5 h-5" />
-                                <ChevronDown className="w-4 h-4" />
-                            </motion.button>
-                            <AnimatePresence>
-                                {showDropdown && (
-                                    <motion.div
-                                        variants={dropdownVariants}
-                                        initial="hidden"
-                                        animate="visible"
-                                        exit="hidden"
-                                        className="absolute right-0 mt-2 w-48 bg-purple-800 rounded-md shadow-lg py-1 z-10"
-                                    >
-                                        {isLoggedIn ? (
-                                            <button
-                                                onClick={() => navigate('/personal-info')}
-                                                className="block px-4 py-2 text-sm text-pink-200 hover:bg-purple-700 w-full text-left"
-                                            >
-                                                Go to Dashboard
-                                            </button>
-                                        ) : (
-                                            <>
-                                                <button
-                                                    onClick={() => navigate('/login')}
-                                                    className="block px-4 py-2 text-sm text-pink-200 hover:bg-purple-700 w-full text-left"
-                                                >
-                                                    Login
-                                                </button>
-                                                <button
-                                                    onClick={() => navigate('/login')}
-                                                    className="block px-4 py-2 text-sm text-pink-200 hover:bg-purple-700 w-full text-left"
-                                                >
-                                                    Register
-                                                </button>
-                                            </>
-                                        )}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                            {/*<motion.button*/}
+                            {/*    variants={navButtonVariants}*/}
+                            {/*    whileHover="hover"*/}
+                            {/*    whileTap="tap"*/}
+                            {/*    onClick={() => setShowDropdown(!showDropdown)}*/}
+                            {/*    className="text-lg text-pink-200 hover:text-white transition-colors duration-300 px-4 py-2 rounded-lg bg-purple-700/50 hover:bg-purple-600/50 flex items-center gap-2"*/}
+                            {/*>*/}
+                            {/*    <User className="w-5 h-5" />*/}
+                            {/*    <ChevronDown className="w-4 h-4" />*/}
+                            {/*</motion.button>*/}
+                            {/*<AnimatePresence>*/}
+                            {/*    {showDropdown && (*/}
+                            {/*        <motion.div*/}
+                            {/*            variants={dropdownVariants}*/}
+                            {/*            initial="hidden"*/}
+                            {/*            animate="visible"*/}
+                            {/*            exit="hidden"*/}
+                            {/*            className="absolute right-0 mt-2 w-48 bg-purple-800 rounded-md shadow-lg py-1 z-10"*/}
+                            {/*        >*/}
+                            {/*            {isLoggedIn ? (*/}
+                            {/*                <button*/}
+                            {/*                    onClick={() => navigate('/personal-info')}*/}
+                            {/*                    className="block px-4 py-2 text-sm text-pink-200 hover:bg-purple-700 w-full text-left"*/}
+                            {/*                >*/}
+                            {/*                    Go to Dashboard*/}
+                            {/*                </button>*/}
+                            {/*            ) : (*/}
+                            {/*                <>*/}
+                            {/*                    <button*/}
+                            {/*                        onClick={() => navigate('/login')}*/}
+                            {/*                        className="block px-4 py-2 text-sm text-pink-200 hover:bg-purple-700 w-full text-left"*/}
+                            {/*                    >*/}
+                            {/*                        Login*/}
+                            {/*                    </button>*/}
+                            {/*                    <button*/}
+                            {/*                        onClick={() => navigate('/login')}*/}
+                            {/*                        className="block px-4 py-2 text-sm text-pink-200 hover:bg-purple-700 w-full text-left"*/}
+                            {/*                    >*/}
+                            {/*                        Register*/}
+                            {/*                    </button>*/}
+                            {/*                </>*/}
+                            {/*            )}*/}
+                            {/*        </motion.div>*/}
+                            {/*    )}*/}
+                            {/*</AnimatePresence>*/}
                         </div>
                     </div>
                 </motion.nav>

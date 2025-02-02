@@ -225,47 +225,47 @@ function UserMenu() {
         setIsLoggedIn(!!token);
     }, []);
 
-    return (
-        <div className="relative">
-            <motion.button
-                className="flex items-center space-x-2 bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300"
-                onClick={() => setIsOpen(!isOpen)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-            >
-                <User size={20} />
-                <ChevronDown size={20} />
-            </motion.button>
-
-            {isOpen && (
-                <motion.div
-                    className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl overflow-hidden"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: -10 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                >
-                    {isLoggedIn ? (
-                        <>
-                            <a href="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                                <Settings size={18} className="inline mr-2" /> Profile
-                            </a>
-                            <a href="/logout" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                                <LogOut size={18} className="inline mr-2" /> Logout
-                            </a>
-                        </>
-                    ) : (
-                        <a href="/voting-instructions" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                            <HelpCircle size={18} className="inline mr-2" /> Instructions
-                        </a>
-                    )}
-                    <a href="/about" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                        <HelpCircle size={18} className="inline mr-2" /> About
-                    </a>
-                </motion.div>
-            )}
-        </div>
-    );
+    // return (
+    //     <div className="relative">
+    //         <motion.button
+    //             className="flex items-center space-x-2 bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300"
+    //             onClick={() => setIsOpen(!isOpen)}
+    //             whileHover={{ scale: 1.05 }}
+    //             whileTap={{ scale: 0.95 }}
+    //         >
+    //             <User size={20} />
+    //             <ChevronDown size={20} />
+    //         </motion.button>
+    //
+    //         {isOpen && (
+    //             <motion.div
+    //                 className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl overflow-hidden"
+    //                 initial={{ opacity: 0, y: -20 }}
+    //                 animate={{ opacity: 1, y: -10 }}
+    //                 exit={{ opacity: 0, y: -20 }}
+    //                 transition={{ duration: 0.2 }}
+    //             >
+    //                 {isLoggedIn ? (
+    //                     <>
+    //                         <a href="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+    //                             <Settings size={18} className="inline mr-2" /> Profile
+    //                         </a>
+    //                         <a href="/logout" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+    //                             <LogOut size={18} className="inline mr-2" /> Logout
+    //                         </a>
+    //                     </>
+    //                 ) : (
+    //                     <a href="/voting-instructions" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+    //                         <HelpCircle size={18} className="inline mr-2" /> Instructions
+    //                     </a>
+    //                 )}
+    //                 <a href="/about" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+    //                     <HelpCircle size={18} className="inline mr-2" /> About
+    //                 </a>
+    //             </motion.div>
+    //         )}
+    //     </div>
+    // );
 }
 
 export function LoginPage() {
