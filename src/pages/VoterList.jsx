@@ -40,7 +40,9 @@ function VoterList() {
         setIsRefreshing(true);
         setError(null);
         try {
-            const response = await fetch('https://localhost:8443/api/publicView');
+            const apiUrl = import.meta.env.VITE_API_URL;
+
+            const response = await fetch(apiUrl+'/publicView');
             if (!response.ok) {
                 throw new Error('Failed to fetch voter details');
             }

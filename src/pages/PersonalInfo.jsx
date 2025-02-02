@@ -24,7 +24,9 @@ function PersonalInfo() {
 
     const fetchUserDetails = async () => {
         try {
-            const response = await apiCall("GET", "https://localhost:8443/api/getUserDetails", null, {
+            const apiUrl = import.meta.env.VITE_API_URL;
+
+            const response = await apiCall("GET", apiUrl+'/getUserDetails', null, {
 
             });
 

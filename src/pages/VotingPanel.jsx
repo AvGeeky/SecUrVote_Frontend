@@ -48,7 +48,9 @@ export default function VotingPanel() {
         const fetchElections = async () => {
 
             try {
-                const response = await apiCall("GET", "https://localhost:8443/api/getElections");
+                const apiUrl = import.meta.env.VITE_API_URL;
+
+                const response = await apiCall("GET", apiUrl+'/getElections');
 
                 if (response.data && response.data.candidates) {
                     setCandidates(response.data.candidates);
@@ -132,7 +134,9 @@ export default function VotingPanel() {
         }
 
         try {
-            const response = await apiCall("GET",`https://localhost:8443/api/castVote?vote=${selectedCandidate.details}`);
+            const apiUrl = import.meta.env.VITE_API_URL;
+            apiUrl+`/castVote`
+            const response = await apiCall("GET",apiUrl+`/castVote?vote=${selectedCandidate.details}`);
             if (response.data.status === 'S') {
                 alert('Vote submitted successfully!');
                 navigate('/voter-list');

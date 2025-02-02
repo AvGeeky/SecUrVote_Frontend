@@ -30,7 +30,9 @@ export default function RegistrationPage() {
         }
 
         try {
-            const response = await apiCall("GET", "https://localhost:8443/api/setEmail", null, {
+            const apiUrl = import.meta.env.VITE_API_URL;
+
+            const response = await apiCall("GET", apiUrl+"/setEmail", null, {
                 params: { mail: formData.email },
             });
 
@@ -39,7 +41,9 @@ export default function RegistrationPage() {
                 setErrorMessage(""); // Clear any previous error messages
 
                 // Send OTP after successful email verification
-                await apiCall("POST", "https://localhost:8443/api/sendOtp");
+                const apiUrl = import.meta.env.VITE_API_URL;
+
+                await apiCall("POST", apiUrl+'/sendOtp');
             } else {
                 // If the backend sends a failure status, display the error message
                 setErrorMessage(response.data.message || "Failed to verify email. Please try again.");
@@ -73,7 +77,9 @@ export default function RegistrationPage() {
 
     const verifyOtp = async () => {
         try {
-            const response = await apiCall("POST", "https://localhost:8443/api/verifyOtp", null, {
+            const apiUrl = import.meta.env.VITE_API_URL;
+
+            const response = await apiCall("POST", apiUrl+'/verifyOtp', null, {
                 params: { otp_param: formData.otp },
             });
 
@@ -121,7 +127,9 @@ export default function RegistrationPage() {
 
         try {
             // Manually construct the URL with query parameters
-            const url = `https://localhost:8443/api/registerUser?username=${encodeURIComponent(formData.username)}&password=${encodeURIComponent(formData.reEnterPassword)}`;
+            const apiUrl = import.meta.env.VITE_API_URL;
+
+            const url = `${apiUrl}/registerUser?username=${encodeURIComponent(formData.username)}&password=${encodeURIComponent(formData.reEnterPassword)}`;
 
             // Make the API call
             const response = await apiCall("GET", url, {});

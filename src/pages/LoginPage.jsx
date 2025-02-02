@@ -54,7 +54,9 @@ function LoginForm() {
 
     const verifySecretId = async () => {
         try {
-            const response = await apiCall("GET", `https://localhost:8443/api/setSecret`, null, {
+            const apiUrl = import.meta.env.VITE_API_URL;
+
+            const response = await apiCall("GET", apiUrl+'/setSecret', null, {
                 params: { id: formData.secretId },
             });
 
@@ -79,7 +81,9 @@ function LoginForm() {
 
     const login = async (credentials) => {
         try {
-            const response = await apiCall("GET", `https://localhost:8443/api/login`, null, {
+            const apiUrl = import.meta.env.VITE_API_URL;
+
+            const response = await apiCall("GET", apiUrl+'/login', null, {
                 params: { username: credentials.username, password: credentials.password },
 
             });
