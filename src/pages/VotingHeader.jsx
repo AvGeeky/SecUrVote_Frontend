@@ -208,7 +208,7 @@ export function VotingHeader() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.9, duration: 0.5 }}
                         >
-                            <ActionButton to="/voting-instructions" icon={BookOpen}>
+                            <ActionButton to="/voting-instructionss" icon={BookOpen}>
                                 Instructions
                             </ActionButton>
                             <ActionButton to="/login" icon={LogIn}>
