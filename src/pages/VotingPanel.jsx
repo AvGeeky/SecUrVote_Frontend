@@ -212,7 +212,7 @@ export default function VotingPanel() {
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-md p-4 rounded-lg text-white">
                                     <p className="mb-4">
-                                        <strong>Manifesto:</strong> {selectedCandidate.manifesto}
+                                        <strong>Unique Code:</strong> {selectedCandidate.details}
                                     </p>
                                     <div>
                                         <label htmlFor="codeInput" className="block text-white mb-2">Enter the unique code for this candidate:</label>
