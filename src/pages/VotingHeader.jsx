@@ -77,15 +77,15 @@ export function VotingHeader() {
     return (
         <div className="min-h-screen w-full bg-gradient-to-br from-purple-950 via-purple-700 to-pink-800 overflow-hidden">
             <div className="fixed inset-0 w-full h-full">
-                <Suspense fallback={<div className="w-full h-full bg-purple-900" />}>
-                    <Spline
-                        scene="https://prod.spline.design/YVXZPOYAdOAjh9m3/scene.splinecode"
-                        style={{
-                            transform: `translateY(${scrollY * 0.5}px)`,
-                            transition: 'transform 0.1s ease-out'
-                        }}
-                    />
-                </Suspense>
+                {/*<Suspense fallback={<div className="w-full h-full bg-purple-900" />}>*/}
+                {/*    <Spline*/}
+                {/*        scene="https://prod.spline.design/YVXZPOYAdOAjh9m3/scene.splinecode"*/}
+                {/*        style={{*/}
+                {/*            transform: `translateY(${scrollY * 0.5}px)`,*/}
+                {/*            transition: 'transform 0.1s ease-out'*/}
+                {/*        }}*/}
+                {/*    />*/}
+                {/*</Suspense>*/}
             </div>
             <div className="relative z-10 max-w-[2500px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col min-h-screen">
                 <motion.nav
