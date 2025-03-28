@@ -8,7 +8,7 @@ export function AboutPage() {
             role="main"
             aria-label="About SafeVote"
         >
-            <div className="w-full max-w-[1400px] mx-auto px-4 lg:px-8 py-16 lg:py-24">
+            <div className="w-screen max-w-[1400px] mx-auto px-4 lg:px-8 py-16 lg:py-24">
                 <section className="flex flex-col lg:flex-row gap-8 lg:gap-16">
                     {/* Title Section */}
                     <div className="lg:w-1/4">

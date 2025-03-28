@@ -1,12 +1,12 @@
+"use client"
+
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Eye, EyeOff } from "lucide-react"
-import { motion } from "framer-motion"
+import { Eye, EyeOff, Mail, Lock, User, Shield, CheckCircle, AlertCircle, ArrowRight } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 import useApiWithAuth from "../hooks/useApiWithAuth"
 
-
 export default function RegistrationPage() {
-
     const [formData, setFormData] = useState({
         email: "",
         username: "",
@@ -30,93 +30,93 @@ export default function RegistrationPage() {
         }
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL;
+            const apiUrl = import.meta.env.VITE_API_URL
 
-            const response = await apiCall("GET", apiUrl+"/setEmail", null, {
+            const response = await apiCall("GET", apiUrl + "/setEmail", null, {
                 params: { mail: formData.email },
-            });
+            })
 
             if (response.data.status === "S") {
-                setShowOtpField(true);
-                setErrorMessage(""); // Clear any previous error messages
+                setShowOtpField(true)
+                setErrorMessage("") // Clear any previous error messages
 
                 // Send OTP after successful email verification
-                const apiUrl = import.meta.env.VITE_API_URL;
+                const apiUrl = import.meta.env.VITE_API_URL
 
-                await apiCall("POST", apiUrl+'/sendOtp');
+                await apiCall("POST", apiUrl + "/sendOtp")
             } else {
                 // If the backend sends a failure status, display the error message
-                setErrorMessage(response.data.message || "Failed to verify email. Please try again.");
+                setErrorMessage(response.data.message || "Failed to verify email. Please try again.")
             }
         } catch (error) {
             // Check if the error response contains a message, otherwise display a default message
-            const errorMessage = error.response?.data?.message || "Failed to verify email. Please try again.";
+            const errorMessage = error.response?.data?.message || "Failed to verify email. Please try again."
 
             // Handle specific error scenarios
             if (error.response?.data?.message === "TO") {
-                setErrorMessage("Session expired. Please log in again.");
-                alert("Token expired or invalid. Please log in again.");
+                setErrorMessage("Session expired. Please log in again.")
+                alert("Token expired or invalid. Please log in again.")
                 // Redirect to login page after a short delay (if necessary)
                 setTimeout(() => {
-                    navigate("/login");
-                }, 2000);
+                    navigate("/login")
+                }, 2000)
             } else if (error.response?.data?.message === "JWT Token not passed") {
-                setErrorMessage("Authorization token is missing. Please log in.");
+                setErrorMessage("Authorization token is missing. Please log in.")
             } else if (error.response?.data?.message === "Registration is not the mode selected.") {
-                setErrorMessage("Invalid registration mode. Please try again.");
+                setErrorMessage("Invalid registration mode. Please try again.")
             } else if (error.response?.data?.message === "failed email auth.") {
-                setErrorMessage("Email authentication failed. Please check your email and try again.");
+                setErrorMessage("Email authentication failed. Please check your email and try again.")
             } else if (error.response?.data?.message === "Error_E") {
-                setErrorMessage("An unknown error occurred. Please try again.");
+                setErrorMessage("An unknown error occurred. Please try again.")
             } else {
                 // For any other errors that don't match the above cases
-                setErrorMessage(errorMessage);
+                setErrorMessage(errorMessage)
             }
         }
-    };
+    }
 
     const verifyOtp = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL;
+            const apiUrl = import.meta.env.VITE_API_URL
 
-            const response = await apiCall("POST", apiUrl+'/verifyOtp', null, {
+            const response = await apiCall("POST", apiUrl + "/verifyOtp", null, {
                 params: { otp_param: formData.otp },
-            });
+            })
 
             if (response.data.status === "S") {
                 // OTP verified successfully
-                setShowPasswordFields(true);  // Show the password fields for further registration
-                setShowOtpField(false);  // Hide the OTP field after successful verification
-                setErrorMessage("");  // Clear any previous error messages
+                setShowPasswordFields(true) // Show the password fields for further registration
+                setShowOtpField(false) // Hide the OTP field after successful verification
+                setErrorMessage("") // Clear any previous error messages
             } else {
                 // Handle OTP verification failure or other error messages
-                setErrorMessage(response.data.message || "Failed to verify OTP. Please try again.");
+                setErrorMessage(response.data.message || "Failed to verify OTP. Please try again.")
             }
         } catch (error) {
             // Handle specific errors from the backend
             if (error.response?.data?.message === "TO") {
-                setErrorMessage("Session expired. Please log in again.");
-                alert("Token expired or invalid. Please log in again.");
+                setErrorMessage("Session expired. Please log in again.")
+                alert("Token expired or invalid. Please log in again.")
                 // Redirect to login page after a short delay (if necessary)
                 setTimeout(() => {
-                    navigate("/login");  // Redirect to the login page
-                }, 2000);
+                    navigate("/login") // Redirect to the login page
+                }, 2000)
             } else if (error.response?.data?.message === "JWT Token not passed") {
-                setErrorMessage("Authorization token is missing. Please log in.");
+                setErrorMessage("Authorization token is missing. Please log in.")
             } else if (error.response?.data?.message === "Error. Mail not verified.") {
-                setErrorMessage("Please verify your email before proceeding.");
+                setErrorMessage("Please verify your email before proceeding.")
             } else if (error.response?.data?.message === "Error. OTP Already Verified.") {
-                setErrorMessage("This OTP has already been verified. Please request a new OTP.");
+                setErrorMessage("This OTP has already been verified. Please request a new OTP.")
             } else if (error.response?.data?.message === "OTP Verification Error") {
-                setErrorMessage("The OTP you entered is incorrect. Please try again.");
+                setErrorMessage("The OTP you entered is incorrect. Please try again.")
             } else if (error.response?.data?.message === "Error_E") {
-                setErrorMessage("An unknown error occurred. Please try again.");
+                setErrorMessage("An unknown error occurred. Please try again.")
             } else {
                 // For any other errors that don't match the above cases
-                setErrorMessage(error.response?.data?.message || "Failed to verify OTP. Please try again.");
+                setErrorMessage(error.response?.data?.message || "Failed to verify OTP. Please try again.")
             }
         }
-    };
+    }
 
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -127,50 +127,50 @@ export default function RegistrationPage() {
 
         try {
             // Manually construct the URL with query parameters
-            const apiUrl = import.meta.env.VITE_API_URL;
+            const apiUrl = import.meta.env.VITE_API_URL
 
-            const url = `${apiUrl}/registerUser?username=${encodeURIComponent(formData.username)}&password=${encodeURIComponent(formData.reEnterPassword)}`;
+            const url = `${apiUrl}/registerUser?username=${encodeURIComponent(formData.username)}&password=${encodeURIComponent(formData.reEnterPassword)}`
 
             // Make the API call
-            const response = await apiCall("GET", url, {});
+            const response = await apiCall("GET", url, {})
 
             // Handle successful registration
             if (response.data.status === "S") {
-                alert(`Registration successful. Your Hash ID is: ${response.data.hashID}. Please store it for future use.`);
-                navigate("/login");
+                alert(`Registration successful. Your Hash ID is: ${response.data.hashID}. Please store it for future use.`)
+                navigate("/login")
             } else {
                 // Handle failure: display error message from backend response
-                setErrorMessage(response.data.message || "Registration failed. Please try again.");
+                setErrorMessage(response.data.message || "Registration failed. Please try again.")
             }
         } catch (error) {
             // Handle specific errors: network issues, server errors, etc.
             if (error.response?.data?.message === "TO") {
-                setErrorMessage("Session expired. Please log in again.");
-                alert("Token expired or invalid. Please log in again.");
+                setErrorMessage("Session expired. Please log in again.")
+                alert("Token expired or invalid. Please log in again.")
                 // Redirect to login page after a short delay (if necessary)
                 setTimeout(() => {
-                    navigate("/login");
-                }, 2000);
+                    navigate("/login")
+                }, 2000)
             } else if (error.response?.data?.message === "JWT Token not passed") {
-                setErrorMessage("Authorization token is missing. Please log in.");
+                setErrorMessage("Authorization token is missing. Please log in.")
             } else if (error.response?.data?.message === "Registration is not the mode selected.") {
-                setErrorMessage("Invalid registration mode. Please try again.");
+                setErrorMessage("Invalid registration mode. Please try again.")
             } else if (error.response?.data?.message === "failed email auth.") {
-                setErrorMessage("Email authentication failed. Please check your email and try again.");
+                setErrorMessage("Email authentication failed. Please check your email and try again.")
             } else if (error.response?.data?.message === "Error_E") {
-                setErrorMessage("An unknown error occurred. Please try again.");
+                setErrorMessage("An unknown error occurred. Please try again.")
                 setTimeout(() => {
-                    navigate("/login");
-                }, 2000);
-            }else if (error.request) {
+                    navigate("/login")
+                }, 2000)
+            } else if (error.request) {
                 // The request was made, but no response was received
-                setErrorMessage("No response received from the server. Please check your network connection.");
+                setErrorMessage("No response received from the server. Please check your network connection.")
             } else {
                 // Some other error occurred while setting up the request
-                setErrorMessage(`An unexpected error occurred: ${error.message}`);
+                setErrorMessage(`An unexpected error occurred: ${error.message}`)
             }
         }
-    };
+    }
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -188,225 +188,425 @@ export default function RegistrationPage() {
         }
     }
 
-    const inputVariants = {
-        focus: { scale: 1.02, transition: { duration: 0.3 } },
-    }
-
     return (
-        <main className="min-h-screen w-screen flex items-center justify-center bg-gradient-to-b from-gray-900 via-gray-800 to-gray-700 overflow-hidden p-4 md:p-8">
+        <main className="min-h-screen w-screen flex items-center justify-center bg-gradient-to-br from-purple-950 via-purple-800 to-pink-800 overflow-hidden p-4 md:p-8">
+            {/* Background elements */}
+            <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute top-0 -left-40 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+                <div className="absolute bottom-0 -right-40 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+            </div>
+
             <motion.div
-                className="w-full max-w-7xl flex flex-col md:flex-row items-center justify-between bg-gray-800/30 backdrop-blur-md rounded-3xl p-8 md:p-12 shadow-2xl"
+                className="w-full max-w-6xl flex flex-col lg:flex-row items-center justify-between backdrop-blur-sm bg-white/5 rounded-3xl p-6 md:p-10 shadow-2xl border border-white/10 relative z-10"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
+                {/* Left side - Illustration */}
                 <motion.div
-                    className="w-full md:w-1/2 flex justify-center mb-12 md:mb-0"
-                    initial={{ x: -100, opacity: 0 }}
+                    className="w-full lg:w-1/2 flex justify-center mb-10 lg:mb-0 p-4"
+                    initial={{ x: -50, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.8, type: "spring" }}
                 >
-                    <motion.img
-                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/67446702eabcd31d9bbf137ef3170bebac9ba0f224c2ee2157d3a073fec81b9f"
-                        alt="Student registration illustration"
-                        className="max-w-full h-auto object-contain rounded-2xl shadow-xl"
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ duration: 0.3 }}
-                    />
+                    <div className="relative">
+                        <motion.div
+                            className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-cyan-500/20 to-indigo-600/20 blur-xl"
+                            animate={{
+                                opacity: [0.5, 0.8, 0.5],
+                                scale: [1, 1.05, 1],
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Number.POSITIVE_INFINITY,
+                                repeatType: "reverse"
+                            }}
+                        />
+
+                        <motion.div
+                            className="relative z-10 w-full max-w-md"
+                            whileHover={{ scale: 1.02 }}
+                            transition={{ type: "spring", stiffness: 100 }}
+                        >
+                            <motion.div
+                                className="w-full h-full"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.5, duration: 1 }}
+                            >
+                                <svg
+                                    viewBox="0 0 500 500"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-full h-auto"
+                                >
+                                    <motion.rect
+                                        x="150"
+                                        y="100"
+                                        width="200"
+                                        height="300"
+                                        rx="20"
+                                        fill="#0EA5"
+                                        fillOpacity="0.3"
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ duration: 0.8 }}
+                                    />
+
+                                    <motion.rect
+                                        x="175"
+                                        y="150"
+                                        width="150"
+                                        height="30"
+                                        rx="5"
+                                        fill="white"
+                                        fillOpacity="0.3"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: 150 }}
+                                        transition={{ duration: 0.8, delay: 0.5 }}
+                                    />
+
+                                    <motion.rect
+                                        x="175"
+                                        y="200"
+                                        width="150"
+                                        height="30"
+                                        rx="5"
+                                        fill="white"
+                                        fillOpacity="0.3"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: 150 }}
+                                        transition={{ duration: 0.8, delay: 0.7 }}
+                                    />
+
+                                    <motion.rect
+                                        x="175"
+                                        y="250"
+                                        width="150"
+                                        height="30"
+                                        rx="5"
+                                        fill="white"
+                                        fillOpacity="0.3"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: 150 }}
+                                        transition={{ duration: 0.8, delay: 0.9 }}
+                                    />
+
+                                    <motion.rect
+                                        x="175"
+                                        y="300"
+                                        width="150"
+                                        height="40"
+                                        rx="10"
+                                        fill="#0EA5E9"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: 150 }}
+                                        transition={{ duration: 0.8, delay: 1.1 }}
+                                    />
+
+                                    <motion.circle
+                                        cx="250"
+                                        cy="80"
+                                        r="30"
+                                        fill="#818CF8"
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ duration: 0.5, delay: 1.3, type: "spring" }}
+                                    />
+
+                                    <motion.path
+                                        d="M235 80L245 90L265 70"
+                                        stroke="white"
+                                        strokeWidth="4"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        initial={{ pathLength: 0 }}
+                                        animate={{ pathLength: 1 }}
+                                        transition={{ duration: 0.5, delay: 1.5 }}
+                                    />
+
+                                    <motion.circle
+                                        cx="250"
+                                        cy="320"
+                                        r="10"
+                                        fill="white"
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ duration: 0.5, delay: 1.7, type: "spring" }}
+                                    />
+
+                                    <motion.circle
+                                        cx="250"
+                                        cy="250"
+                                        r="100"
+                                        stroke="#38BDF8"
+                                        strokeWidth="2"
+                                        strokeDasharray="10 5"
+                                        fill="none"
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ duration: 1, delay: 0.3 }}
+                                    />
+
+                                    <motion.circle
+                                        cx="250"
+                                        cy="250"
+                                        r="150"
+                                        stroke="#818CF8"
+                                        strokeWidth="2"
+                                        strokeDasharray="15 10"
+                                        fill="none"
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ duration: 1, delay: 0.1 }}
+                                    />
+                                </svg>
+                            </motion.div>
+                        </motion.div>
+                    </div>
                 </motion.div>
 
-                <div className="w-full md:w-1/2 flex justify-center">
-                    <form onSubmit={handleSubmit} className="w-full max-w-xl space-y-8">
+                {/* Right side - Form */}
+                <div className="w-full lg:w-1/2 flex justify-center">
+                    <motion.div
+                        className="w-full max-w-md"
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.8, delay: 0.3 }}
+                    >
                         <motion.h1
-                            className="text-4xl font-bold leading-tight mb-10 bg-gradient-to-r from-teal-400 to-gray-300 text-transparent bg-clip-text"
-                            initial={{ y: -10, opacity: 0 }}
-                            animate={{ y: 35, opacity: 1 }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
+                            className="text-4xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text"
+                            initial={{ y: -20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ duration: 0.5 }}
                         >
-                            User Registration
+                            Create Your Account
                         </motion.h1>
 
                         <motion.p
-                            className="text-sm text-gray-400"
-                            initial={{ y: -50, opacity: 0 }}
-                            animate={{ y: 0, opacity: 0.9 }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
+                            className="text-white/70 mb-8"
+                            initial={{ y: -20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
                         >
-                            You have been automatically redirected here to complete your registration.
+                            Complete the registration process to access the secure voting system.
                         </motion.p>
 
-                        <motion.div
-                            className="space-y-8"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.5, delay: 0.4 }}
-                        >
-                            <motion.div className="w-full" variants={inputVariants}>
-                                <label className="block text-white text-lg font-medium mb-3" htmlFor="email">
-                                    Email
-                                </label>
-                                <motion.input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    className="w-full px-5 py-4 rounded-xl focus:ring-4 focus:ring-blue-500 focus:outline-none bg-white/20 text-white text-lg placeholder-gray-300"
-                                    required
-                                    placeholder="your.email@example.com"
-                                    whileFocus="focus"
-                                />
-                            </motion.div>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <AnimatePresence mode="wait">
+                                {!showOtpField && !showPasswordFields && (
+                                    <motion.div
+                                        key="email-step"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="space-y-6"
+                                    >
+                                        <div className="space-y-2">
+                                            <label className="block text-white/90 font-medium text-sm">Email Address</label>
+                                            <div className="relative">
+                                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-300">
+                                                    <Mail size={18} />
+                                                </div>
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    value={formData.email}
+                                                    onChange={handleInputChange}
+                                                    className="w-full bg-white/10 text-white border border-cyan-500/30 h-[50px] pl-12 pr-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/70 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/15"
+                                                    placeholder="your.email@example.com"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <motion.button
+                                            type="button"
+                                            onClick={validateEmail}
+                                            className="w-full px-6 py-4 text-lg font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl hover:from-cyan-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-cyan-500/70 focus:ring-offset-2 focus:ring-offset-blue-900/40 transition-all duration-300 shadow-lg shadow-blue-900/30 flex items-center justify-center gap-2"
+                                            whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(14, 165, 233, 0.5)" }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            Verify Email <ArrowRight size={18} />
+                                        </motion.button>
+                                    </motion.div>
+                                )}
+
+                                {showOtpField && (
+                                    <motion.div
+                                        key="otp-step"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="space-y-6"
+                                    >
+                                        <motion.div
+                                            className="flex items-center gap-2 text-green-400 mb-4"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 0.2 }}
+                                        >
+                                            <CheckCircle size={20} />
+                                            <span>Email verified successfully</span>
+                                        </motion.div>
+
+                                        <div className="space-y-2">
+                                            <label className="block text-white/90 font-medium text-sm">One-Time Password (OTP)</label>
+                                            <div className="relative">
+                                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-300">
+                                                    <Lock size={18} />
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    name="otp"
+                                                    value={formData.otp}
+                                                    onChange={handleInputChange}
+                                                    className="w-full bg-white/10 text-white border border-cyan-500/30 h-[50px] pl-12 pr-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/70 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/15"
+                                                    placeholder="Enter the OTP sent to your email"
+                                                    required
+                                                />
+                                            </div>
+                                            <p className="text-white/60 text-sm mt-2">
+                                                Please check your email for the OTP code we just sent you.
+                                            </p>
+                                        </div>
+
+                                        <motion.button
+                                            type="button"
+                                            onClick={verifyOtp}
+                                            className="w-full px-6 py-4 text-lg font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl hover:from-cyan-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-cyan-500/70 focus:ring-offset-2 focus:ring-offset-blue-900/40 transition-all duration-300 shadow-lg shadow-blue-900/30 flex items-center justify-center gap-2"
+                                            whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(14, 165, 233, 0.5)" }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            Verify OTP <ArrowRight size={18} />
+                                        </motion.button>
+                                    </motion.div>
+                                )}
+
+                                {showPasswordFields && (
+                                    <motion.div
+                                        key="password-step"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="space-y-6"
+                                    >
+                                        <motion.div
+                                            className="flex items-center gap-2 text-green-400 mb-4"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 0.2 }}
+                                        >
+                                            <CheckCircle size={20} />
+                                            <span>OTP verified successfully</span>
+                                        </motion.div>
+
+                                        <div className="space-y-2">
+                                            <label className="block text-white/90 font-medium text-sm">Username</label>
+                                            <div className="relative">
+                                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-300">
+                                                    <User size={18} />
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    name="username"
+                                                    value={formData.username}
+                                                    onChange={handleInputChange}
+                                                    className="w-full bg-white/10 text-white border border-cyan-500/30 h-[50px] pl-12 pr-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/70 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/15"
+                                                    placeholder="Choose a username"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="block text-white/90 font-medium text-sm">Password</label>
+                                            <div className="relative">
+                                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-300">
+                                                    <Lock size={18} />
+                                                </div>
+                                                <input
+                                                    type={showPassword ? "text" : "password"}
+                                                    name="password"
+                                                    value={formData.password}
+                                                    onChange={handleInputChange}
+                                                    className="w-full bg-white/10 text-white border border-cyan-500/30 h-[50px] pl-12 pr-12 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/70 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/15"
+                                                    placeholder="Create a strong password"
+                                                    required
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => togglePasswordVisibility("password")}
+                                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/70 hover:text-white"
+                                                >
+                                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="block text-white/90 font-medium text-sm">Confirm Password</label>
+                                            <div className="relative">
+                                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-300">
+                                                    <Lock size={18} />
+                                                </div>
+                                                <input
+                                                    type={showReEnterPassword ? "text" : "password"}
+                                                    name="reEnterPassword"
+                                                    value={formData.reEnterPassword}
+                                                    onChange={handleInputChange}
+                                                    className="w-full bg-white/10 text-white border border-cyan-500/30 h-[50px] pl-12 pr-12 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/70 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/15"
+                                                    placeholder="Confirm your password"
+                                                    required
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => togglePasswordVisibility("reEnterPassword")}
+                                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/70 hover:text-white"
+                                                >
+                                                    {showReEnterPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <motion.button
+                                            type="submit"
+                                            className="w-full px-6 py-4 text-lg font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl hover:from-cyan-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-cyan-500/70 focus:ring-offset-2 focus:ring-offset-blue-900/40 transition-all duration-300 shadow-lg shadow-blue-900/30 flex items-center justify-center gap-2"
+                                            whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(14, 165, 233, 0.5)" }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            Complete Registration <CheckCircle size={18} />
+                                        </motion.button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
                             {errorMessage && (
-                                <motion.p
-                                    className="text-red-300 mt-4 text-lg font-medium"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
+                                <motion.div
+                                    className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200 flex items-start gap-3"
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.3 }}
                                 >
-                                    {errorMessage}
-                                </motion.p>
-                            )}
-
-                            {!showOtpField && !showPasswordFields && (
-                                <motion.button
-                                    type="button"
-                                    onClick={async () => {
-                                        await new Promise((resolve) => setTimeout(resolve, 50))
-                                        validateEmail()
-                                    }}
-                                    className="w-full px-6 py-3 mt-6 text-lg font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    Verify Email
-                                </motion.button>
-                            )}
-
-                            {showOtpField && (
-                                <motion.div
-                                    className="space-y-8"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5 }}
-                                >
-                                    <motion.div variants={inputVariants}>
-                                        <label className="block text-white text-lg font-medium mb-3" htmlFor="otp">
-                                            OTP
-                                        </label>
-                                        <motion.input
-                                            type="text"
-                                            id="otp"
-                                            name="otp"
-                                            value={formData.otp}
-                                            onChange={handleInputChange}
-                                            className="w-full px-5 py-4 rounded-xl focus:ring-4 focus:ring-blue-500 focus:outline-none bg-white/20 text-white text-lg placeholder-gray-300"
-                                            required
-                                            placeholder="Enter the OTP sent to your email"
-                                            whileFocus="focus"
-                                        />
-                                    </motion.div>
-                                    <motion.button
-                                        type="button"
-                                        onClick={verifyOtp}
-                                        className="w-full px-6 py-3 mt-6 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        Verify OTP
-                                    </motion.button>
+                                    <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                                    <p>{errorMessage}</p>
                                 </motion.div>
                             )}
+                        </form>
 
-                            {showPasswordFields && (
-                                <motion.div
-                                    className="space-y-8"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5 }}
-                                >
-                                    <h2 className="text-3xl font-bold text-white mt-12 mb-8 text-center">Create Your Password</h2>
-                                    <motion.div variants={inputVariants}>
-                                        <label className="block text-white text-lg font-medium mb-3" htmlFor="username">
-                                            Username
-                                        </label>
-                                        <div className="relative">
-                                            <motion.input
-                                                type="text"
-                                                id="username"
-                                                name="username"
-                                                value={formData.username}
-                                                onChange={handleInputChange}
-                                                className="w-full px-5 py-4 rounded-xl focus:ring-4 focus:ring-blue-500 focus:outline-none bg-white/20 text-white text-lg placeholder-gray-300"
-                                                required
-                                                placeholder="Enter the username"
-                                                whileFocus="focus"
-                                            />
-                                        </div>
-                                    </motion.div>
-                                    <motion.div variants={inputVariants}>
-                                        <label className="block text-white text-lg font-medium mb-3" htmlFor="password">
-                                            Password
-                                        </label>
-                                        <div className="relative">
-                                            <motion.input
-                                                type={showPassword ? "text" : "password"}
-                                                id="password"
-                                                name="password"
-                                                value={formData.password}
-                                                onChange={handleInputChange}
-                                                className="w-full px-5 py-4 rounded-xl focus:ring-4 focus:ring-blue-500 focus:outline-none bg-white/20 text-white text-lg placeholder-gray-300"
-                                                required
-                                                placeholder="Enter your password"
-                                                whileFocus="focus"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => togglePasswordVisibility("password")}
-                                                className="absolute inset-y-0 right-0 pr-5 flex items-center text-white"
-                                            >
-                                                {showPassword ? <EyeOff className="h-6 w-6" /> : <Eye className="h-6 w-6" />}
-                                            </button>
-                                        </div>
-                                    </motion.div>
-                                    <motion.div variants={inputVariants}>
-                                        <label className="block text-white text-lg font-medium mb-3" htmlFor="reEnterPassword">
-                                            Re-enter Password
-                                        </label>
-                                        <div className="relative">
-                                            <motion.input
-                                                type={showReEnterPassword ? "text" : "password"}
-                                                id="reEnterPassword"
-                                                name="reEnterPassword"
-                                                value={formData.reEnterPassword}
-                                                onChange={handleInputChange}
-                                                className="w-full px-5 py-4 rounded-xl focus:ring-4 focus:ring-blue-500 focus:outline-none bg-white/20 text-white text-lg placeholder-gray-300"
-                                                required
-                                                placeholder="Re-enter your password"
-                                                whileFocus="focus"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => togglePasswordVisibility("reEnterPassword")}
-                                                className="absolute inset-y-0 right-0 pr-5 flex items-center text-white"
-                                            >
-                                                {showReEnterPassword ? <EyeOff className="h-6 w-6" /> : <Eye className="h-6 w-6" />}
-                                            </button>
-                                        </div>
-                                    </motion.div>
-                                    <motion.button
-                                        type="submit"
-                                        className="w-full px-8 py-4 mt-8 text-xl font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl focus:ring-4 focus:ring-teal-300 focus:outline-none transition-all duration-300 transform hover:scale-105"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        SUBMIT
-                                    </motion.button>
-                                </motion.div>
-                            )}
+                        <motion.div
+                            className="mt-8 text-center text-white/50 text-sm"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.8 }}
+                        >
+                            <p>© 2025 SecUrVote - Secure Voting System</p>
                         </motion.div>
-                    </form>
+                    </motion.div>
                 </div>
             </motion.div>
         </main>

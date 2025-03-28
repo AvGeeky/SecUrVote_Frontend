@@ -58,7 +58,7 @@ function FeatureCard({ Icon, title, description, index }) {
 
 export function Features() {
     return (
-        <main className="min-h-screen w-full bg-gradient-to-b from-purple-950 via-purple-800 to-pink-700 px-4 py-16 overflow-hidden">
+        <main className="min-h-screen w-screen bg-gradient-to-b from-purple-950 via-purple-800 to-pink-700 px-4 py-16 overflow-hidden">
             <motion.div
                 className="w-full max-w-[1700px] mx-auto px-4 lg:px-8 py-8 lg:py-16"
                 initial={{ opacity: 0 }}

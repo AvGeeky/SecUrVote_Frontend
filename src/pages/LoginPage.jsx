@@ -1,30 +1,277 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { User, ChevronDown, LogOut, Settings, HelpCircle } from "lucide-react";
-import useApiWithAuth from "../hooks/useApiWithAuth";
+"use client"
 
-// eslint-disable-next-line react/prop-types
-function InputField({ label, type = "text", value, onChange, disabled = false }) {
+import { useState, useEffect, useRef } from "react"
+import { useNavigate } from "react-router-dom"
+import { motion, AnimatePresence } from "framer-motion"
+import { Shield, Lock, User, Key, ArrowRight, Camera, CheckCircle, AlertCircle, RefreshCw, X } from "lucide-react"
+import useApiWithAuth from "../hooks/useApiWithAuth"
+
+// Face detection component
+function FaceVerification({ onSuccess, onCancel }) {
+    const videoRef = useRef(null)
+    const canvasRef = useRef(null)
+    const [isCapturing, setIsCapturing] = useState(false)
+    const [capturedImage, setCapturedImage] = useState(null)
+    const [verificationStatus, setVerificationStatus] = useState("idle") // idle, verifying, success, failed
+    const [errorMessage, setErrorMessage] = useState("")
+    const { apiCall } = useApiWithAuth()
+
+    // Start the webcam
+    useEffect(() => {
+        let stream = null
+
+        const startCamera = async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: "user",
+                    },
+                })
+
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream
+                }
+            } catch (err) {
+                setErrorMessage("Unable to access camera. Please ensure you've granted camera permissions.")
+                console.error("Error accessing camera:", err)
+            }
+        }
+
+        startCamera()
+
+        // Cleanup function to stop the camera when component unmounts
+        return () => {
+            if (stream) {
+                stream.getTracks().forEach((track) => track.stop())
+            }
+        }
+    }, [])
+
+    const captureImage = () => {
+        if (!videoRef.current) return
+
+        setIsCapturing(true)
+
+        const video = videoRef.current
+        const canvas = canvasRef.current
+        const context = canvas.getContext("2d")
+
+        // Set canvas dimensions to match video
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+
+        // Draw the current video frame on the canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+        // Convert canvas to data URL (base64 image)
+        const imageData = canvas.toDataURL("image/jpeg")
+        setCapturedImage(imageData)
+        setIsCapturing(false)
+    }
+
+    const retakeImage = () => {
+        setCapturedImage(null)
+        setVerificationStatus("idle")
+        setErrorMessage("")
+    }
+
+    const verifyFace = async () => {
+        if (!capturedImage) return
+
+        setVerificationStatus("verifying")
+        setErrorMessage("")
+
+        try {
+            // Remove the data URL prefix to get just the base64 data
+            const base64Image = capturedImage.split(",")[1]
+
+            // Call your API to verify the face
+            const apiUrl = import.meta.env.VITE_API_URL
+            const response = await apiCall("POST", `${apiUrl}/verifyFace`, {
+                faceImage: base64Image,
+            })
+
+            if (response.data.status === "S") {
+                setVerificationStatus("success")
+                // Wait a moment to show success message before proceeding
+                setTimeout(() => {
+                    onSuccess()
+                }, 1500)
+            } else {
+                setVerificationStatus("failed")
+                setErrorMessage(response.data.message || "Face verification failed. Please try again.")
+            }
+        } catch (error) {
+            setVerificationStatus("failed")
+            setErrorMessage(error.message || "An error occurred during face verification.")
+            console.error("Face verification error:", error)
+        }
+    }
+
     return (
-        <motion.label
-            className="flex flex-col text-lg text-white mb-6"
+        <motion.div
+            className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+        >
+            <motion.div
+                className="bg-gradient-to-br from-purple-900/90 to-pink-900/90 rounded-2xl p-6 max-w-md w-full border border-white/10 shadow-2xl"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", damping: 25 }}
+            >
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold text-white">Face Verification</h2>
+                    <motion.button
+                        onClick={onCancel}
+                        className="text-white/70 hover:text-white"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                    >
+                        <X size={24} />
+                    </motion.button>
+                </div>
+
+                <div className="relative aspect-video bg-black/50 rounded-lg overflow-hidden mb-4">
+                    {!capturedImage ? (
+                        <>
+                            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+
+                            {/* Face outline guide */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <motion.div
+                                    className="w-48 h-48 rounded-full border-2 border-dashed border-pink-400/70"
+                                    animate={{
+                                        scale: [1, 1.05, 1],
+                                        borderColor: ["rgba(244,114,182,0.7)", "rgba(168,85,247,0.7)", "rgba(244,114,182,0.7)"],
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Number.POSITIVE_INFINITY,
+                                        repeatType: "loop",
+                                    }}
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <img src={capturedImage || "/placeholder.svg"} alt="Captured face" className="w-full h-full object-cover" />
+                    )}
+
+                    {/* Hidden canvas for capturing */}
+                    <canvas ref={canvasRef} className="hidden" />
+                </div>
+
+                {errorMessage && (
+                    <motion.div
+                        className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200 text-sm flex items-center"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+                        <p>{errorMessage}</p>
+                    </motion.div>
+                )}
+
+                {verificationStatus === "success" && (
+                    <motion.div
+                        className="mb-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg text-green-200 text-sm flex items-center"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        <CheckCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+                        <p>Face verification successful!</p>
+                    </motion.div>
+                )}
+
+                <div className="flex gap-3">
+                    {!capturedImage ? (
+                        <>
+                            <motion.button
+                                onClick={captureImage}
+                                disabled={isCapturing}
+                                className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-70"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                {isCapturing ? (
+                                    <RefreshCw className="w-5 h-5 animate-spin" />
+                                ) : (
+                                    <>
+                                        <Camera className="w-5 h-5" />
+                                        Capture Image
+                                    </>
+                                )}
+                            </motion.button>
+                        </>
+                    ) : (
+                        <>
+                            <motion.button
+                                onClick={retakeImage}
+                                className="flex-1 px-4 py-3 bg-white/10 text-white rounded-lg font-medium"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                disabled={verificationStatus === "verifying" || verificationStatus === "success"}
+                            >
+                                Retake
+                            </motion.button>
+
+                            <motion.button
+                                onClick={verifyFace}
+                                className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-70"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                disabled={verificationStatus === "verifying" || verificationStatus === "success"}
+                            >
+                                {verificationStatus === "verifying" ? (
+                                    <RefreshCw className="w-5 h-5 animate-spin" />
+                                ) : (
+                                    <>
+                                        Verify Face
+                                        <ArrowRight className="w-5 h-5" />
+                                    </>
+                                )}
+                            </motion.button>
+                        </>
+                    )}
+                </div>
+
+                <p className="text-white/60 text-xs mt-4 text-center">
+                    Please position your face within the circle and ensure good lighting for accurate verification.
+                </p>
+            </motion.div>
+        </motion.div>
+    )
+}
+
+function InputField({ label, type = "text", value, onChange, disabled = false, icon }) {
+    return (
+        <motion.div
+            className="mb-5"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <span className="mb-2 font-medium">{label}</span>
-            <input
-                type={type}
-                value={value}
-                onChange={onChange}
-                disabled={disabled}
-                className={`flex shrink-0 self-stretch w-full bg-white/20 text-white h-[43px] px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300 hover:bg-white/30 ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                aria-label={label}
-                required
-            />
-        </motion.label>
-    );
+            <label className="text-white/90 font-medium text-sm mb-2 block">{label}</label>
+            <div className="relative">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-300">{icon}</div>
+                <input
+                    type={type}
+                    value={value}
+                    onChange={onChange}
+                    disabled={disabled}
+                    className={`w-full bg-white/10 text-white border border-purple-500/30 h-[50px] pl-12 pr-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500/70 focus:border-transparent transition-all duration-300 backdrop-blur-sm ${
+                        disabled ? "opacity-70 cursor-not-allowed" : "hover:bg-white/15"
+                    }`}
+                    aria-label={label}
+                    required
+                />
+            </div>
+        </motion.div>
+    )
 }
 
 function LoginForm() {
@@ -32,254 +279,549 @@ function LoginForm() {
         secretId: "",
         username: "",
         password: "",
-    });
-    const [error, setError] = useState("");
-    const [secretIdStatus, setSecretIdStatus] = useState("unverified");
-    const navigate = useNavigate();
-    const { apiCall } = useApiWithAuth();
+    })
+    const [error, setError] = useState("")
+    const [secretIdStatus, setSecretIdStatus] = useState("unverified")
+    const [isAdmin, setIsAdmin] = useState(false)
+    const [showCredentials, setShowCredentials] = useState(false)
+    const [showFaceVerification, setShowFaceVerification] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const navigate = useNavigate()
+    const { apiCall } = useApiWithAuth()
 
     useEffect(() => {
-        let jwtToken = localStorage.getItem("jwtToken");
-        if(!jwtToken) {
-            console.log("JWT Token not present");
+        const jwtToken = localStorage.getItem("jwtToken")
+        if (!jwtToken) {
+            console.log("JWT Token not present")
         }
-    },[]);
+    }, [])
 
     const handleChange = (field) => (event) => {
         setFormData((prev) => ({
             ...prev,
             [field]: event.target.value,
-        }));
-    };
+        }))
+    }
 
     const verifySecretId = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL;
+            setIsLoading(true)
+            const apiUrl = import.meta.env.VITE_API_URL
 
-            const response = await apiCall("GET", apiUrl+'/setSecret', null, {
+            const response = await apiCall("GET", apiUrl + "/setSecret", null, {
                 params: { id: formData.secretId },
-            });
+            })
 
             if (response.data.status === "N") {
-                setSecretIdStatus("not_found");
-                setError("Secret ID not found.");
+                setSecretIdStatus("not_found")
+                setError("Secret ID not found.")
+                setShowCredentials(false)
             } else if (response.data.status === "R") {
-                setSecretIdStatus("register");
-                setTimeout(() => navigate("/registration"), 0);
+                setSecretIdStatus("register")
+                setTimeout(() => navigate("/registration"), 0)
             } else if (response.data.status === "L") {
-                setSecretIdStatus("verified");
-                setError("");
+                setSecretIdStatus("verified")
+                setShowCredentials(true)
+                setIsAdmin(false)
+                setError("")
             } else if (response.data.status === "A") {
-                // Handle admin login
+                setSecretIdStatus("verified")
+                setShowCredentials(true)
+                setIsAdmin(true)
+                setError("")
+            } else if (response.data.status === "L_ADMIN") {
+                setSecretIdStatus("verified")
+                setShowCredentials(true)
+                setIsAdmin(true)
+                setError("")
+                navigate("/admin-verification")
             }
-            // eslint-disable-next-line no-unused-vars
         } catch (error) {
-            setError(data.message);
+            setError(error.message || "Error verifying Secret ID")
+            setShowCredentials(false)
+        } finally {
+            setIsLoading(false)
         }
-    };
-
+    }
 
     const login = async (credentials) => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL;
+            setIsLoading(true)
+            const apiUrl = import.meta.env.VITE_API_URL
 
-            const response = await apiCall("GET", apiUrl+'/login', null, {
+            // Use adminLogin_5 endpoint for admin login
+            const endpoint = isAdmin ? "/admin-dashboard" : "/login"
+
+            const response = await apiCall("GET", apiUrl + endpoint, null, {
                 params: { username: credentials.username, password: credentials.password },
-
-            });
+            })
 
             if (response.status === 200) {
-                return response.data; // Successful login
+                return response.data // Successful login
             } else {
-                throw response.data; // Handle error returned by API
+                throw response.data // Handle error returned by API
             }
         } catch (error) {
-            const message = error.response?.data?.message || "Login failed.";
+            const message = error.response?.data?.message || "Login failed."
             if (error.response?.status === 401) {
                 if (message === "TO") {
-                    setError("Session expired. Redirecting to login...");
-                    alert("Token expired or invalid. Please log in again.");
+                    setError("Session expired. Redirecting to login...")
+                    alert("Token expired or invalid. Please log in again.")
                     setTimeout(() => {
-                        navigate("/login");
-                    }, 2000);
+                        navigate("/login")
+                    }, 2000)
                 } else if (message === "JWT Token Empty" || message === "Error_E") {
-                    setError("Not authorized. Please log in again.");
+                    setError("Not authorized. Please log in again.")
                     setTimeout(() => {
-                        navigate("/login");
-                    }, 2000);
+                        navigate("/login")
+                    }, 2000)
                 } else {
-                    setError(message);
+                    setError(message)
                 }
             } else {
-                setError(message);
+                setError(message)
             }
 
-            throw new Error(message);
+            throw new Error(message)
+        } finally {
+            setIsLoading(false)
         }
-    };
-
+    }
 
     const handleSubmit = async (event) => {
-        event.preventDefault();
-        setError("");
+        event.preventDefault()
+        setError("")
 
         if (secretIdStatus === "unverified" || secretIdStatus === "not_found") {
-            await verifySecretId();
-            return;
+            await verifySecretId()
+            return
         }
 
         if (secretIdStatus === "register") {
-            navigate("/registration");
-            return;
+            navigate("/registration")
+            return
         }
 
         try {
-            const response = await login(formData);
+            const response = await login(formData)
             if (response.status === "S") {
-                navigate("/personal-info");
+                // If login is successful, show face verification
+                navigate("/personal-info")
             } else {
-                setError(response.message || "An error occurred during login");
+                setError(response.message || "An error occurred during login")
             }
         } catch (err) {
-            setError(err.message || "An error occurred during login");
+            setError(err.message || "An error occurred during login")
         }
-    };
+    }
+
+    const handleFaceVerificationSuccess = () => {
+        // Face verification was successful, proceed to redirect
+        if (isAdmin) {
+            navigate("/admin-dashboard")
+        } else {
+            navigate("/personal-info")
+        }
+    }
+
+    const handleFaceVerificationCancel = () => {
+        setShowFaceVerification(false)
+    }
 
     return (
-        <motion.form
-            onSubmit={handleSubmit}
-            className="flex flex-col w-full max-w-md"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
+        <motion.div
+            className="w-full max-w-md"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
         >
-            <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-pink-500 to-purple-600 text-transparent bg-clip-text text-center">
-                User Authorization
-            </h1>
+            <div className="mb-8 text-center">
+                <motion.div
+                    className="inline-block p-4 rounded-full bg-gradient-to-br from-pink-500/20 to-purple-600/20 backdrop-blur-md mb-4"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
+                >
+                    <Shield className="w-12 h-12 text-pink-400" />
+                </motion.div>
+                <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-pink-400 to-purple-500 text-transparent bg-clip-text">
+                    SecUrVote
+                </h1>
+                <p className="text-white/70">Secure Authentication System</p>
+            </div>
 
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-8 space-y-4 shadow-lg">
+            <motion.form
+                onSubmit={handleSubmit}
+                className="backdrop-blur-lg bg-gradient-to-br from-purple-900/40 to-pink-900/40 rounded-2xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/10"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+            >
                 <InputField
                     label="Secret ID"
                     type="text"
                     value={formData.secretId}
                     onChange={handleChange("secretId")}
                     disabled={secretIdStatus === "verified"}
+                    icon={<Lock size={18} />}
                 />
 
-                <InputField
-                    label="Username"
-                    type="text"
-                    value={formData.username}
-                    onChange={handleChange("username")}
-                    disabled={secretIdStatus !== "verified"}
-                />
+                <AnimatePresence>
+                    {showCredentials && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.4 }}
+                        >
+                            <InputField
+                                label="Username"
+                                type="text"
+                                value={formData.username}
+                                onChange={handleChange("username")}
+                                icon={<User size={18} />}
+                            />
 
-                <InputField
-                    label="Password"
-                    type="password"
-                    value={formData.password}
-                    onChange={handleChange("password")}
-                    disabled={secretIdStatus !== "verified"}
-                />
+                            <InputField
+                                label="Password"
+                                type="password"
+                                value={formData.password}
+                                onChange={handleChange("password")}
+                                icon={<Key size={18} />}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {error && (
+                    <motion.div
+                        className="mb-6 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200 text-sm flex items-center"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+                        <p>{error}</p>
+                    </motion.div>
+                )}
 
                 <motion.button
                     type="submit"
-                    className="w-full px-6 py-3 mt-6 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    className="w-full px-6 py-4 mt-4 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-pink-500/70 focus:ring-offset-2 focus:ring-offset-purple-900/40 transition-all duration-300 shadow-lg shadow-purple-900/30 flex items-center justify-center gap-2 disabled:opacity-70"
+                    whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(147, 51, 234, 0.5)" }}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={isLoading}
                 >
-                    {secretIdStatus === "verified" ? "LOGIN" : "VERIFY SECRET ID"}
+                    {isLoading ? (
+                        <RefreshCw className="w-5 h-5 animate-spin" />
+                    ) : secretIdStatus === "verified" ? (
+                        <>
+                            {isAdmin ? "ADMIN LOGIN" : "LOGIN"} <ArrowRight size={18} />
+                        </>
+                    ) : (
+                        "VERIFY SECRET ID"
+                    )}
                 </motion.button>
-            </div>
-        </motion.form>
-    );
+            </motion.form>
+
+            <motion.div
+                className="mt-6 text-center text-white/50 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+            >
+                <p>© 2025 SecUrVote - Secure Voting System</p>
+            </motion.div>
+
+            {/* Face verification modal */}
+            <AnimatePresence>
+                {showFaceVerification && (
+                    <FaceVerification onSuccess={handleFaceVerificationSuccess} onCancel={handleFaceVerificationCancel} />
+                )}
+            </AnimatePresence>
+        </motion.div>
+    )
 }
 
-function LoginIllustration() {
+function SecurityIllustration() {
     return (
         <motion.div
-            className="w-full md:w-1/2 flex items-center justify-center p-8 mb-8 md:mb-0"
-            initial={{ rotate: -10, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            transition={{ duration: 1, type: "spring", stiffness: 100 }}
+            className="relative w-full max-w-xl"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
         >
-            <motion.img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/6221094fe2c7c8ad2a39e4d14fce6f10acddd7c0a340bec06c10c8831a8c6af3"
-                alt="Login page illustration"
-                className="max-w-full h-auto object-contain"
-                whileHover={{ filter: "hue-rotate(90deg)", transition: { duration: 0.5 } }}
+            <motion.div
+                className="absolute -inset-10 rounded-3xl bg-gradient-to-r from-pink-500/20 to-purple-600/20 blur-xl"
+                animate={{
+                    opacity: [0.5, 0.8, 0.5],
+                }}
+                transition={{
+                    duration: 5,
+                    repeat: Number.POSITIVE_INFINITY,
+                    repeatType: "reverse",
+                }}
             />
+
+            <div className="relative z-10">
+                <motion.div
+                    className="absolute -top-20 -right-10 w-40 h-40 bg-purple-500/20 rounded-full blur-xl"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY }}
+                />
+
+                <motion.div
+                    className="absolute -bottom-10 -left-10 w-40 h-40 bg-pink-500/20 rounded-full blur-xl"
+                    animate={{ scale: [1.2, 1, 1.2] }}
+                    transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY }}
+                />
+
+                <svg viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+                    <motion.circle
+                        cx="300"
+                        cy="300"
+                        r="250"
+                        stroke="#D946EF"
+                        strokeWidth="2"
+                        strokeDasharray="20 10"
+                        fill="none"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 60, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                    />
+
+                    <motion.circle
+                        cx="300"
+                        cy="300"
+                        r="200"
+                        stroke="#A855F7"
+                        strokeWidth="2"
+                        strokeDasharray="15 15"
+                        fill="none"
+                        animate={{ rotate: -360 }}
+                        transition={{ duration: 50, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                    />
+
+                    <motion.circle
+                        cx="300"
+                        cy="300"
+                        r="150"
+                        fill="url(#gradient1)"
+                        fillOpacity="0.2"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 1, delay: 0.5 }}
+                    />
+
+                    <motion.path
+                        d="M300 200L300 400"
+                        stroke="white"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 1, delay: 1 }}
+                    />
+
+                    <motion.path
+                        d="M200 300L400 300"
+                        stroke="white"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 1, delay: 1.2 }}
+                    />
+
+                    <motion.circle
+                        cx="300"
+                        cy="300"
+                        r="80"
+                        fill="url(#gradient2)"
+                        fillOpacity="0.6"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 1, delay: 1.4, type: "spring" }}
+                    />
+
+                    {/* Face outline */}
+                    <motion.circle
+                        cx="300"
+                        cy="300"
+                        r="60"
+                        stroke="white"
+                        strokeWidth="3"
+                        strokeDasharray="10 5"
+                        fill="none"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 1, delay: 1.6 }}
+                    />
+
+                    {/* Eyes */}
+                    <motion.circle
+                        cx="280"
+                        cy="280"
+                        r="8"
+                        fill="white"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.5, delay: 1.8 }}
+                    />
+
+                    <motion.circle
+                        cx="320"
+                        cy="280"
+                        r="8"
+                        fill="white"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.5, delay: 1.9 }}
+                    />
+
+                    {/* Smile */}
+                    <motion.path
+                        d="M280 320C280 320 290 335 300 335C310 335 320 320 320 320"
+                        stroke="white"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 0.8, delay: 2.0 }}
+                    />
+
+                    {/* Camera icon */}
+                    <motion.rect
+                        x="380"
+                        y="380"
+                        width="40"
+                        height="30"
+                        rx="5"
+                        fill="#D946EF"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.5, delay: 2.2, type: "spring" }}
+                    />
+
+                    <motion.circle
+                        cx="400"
+                        cy="395"
+                        r="10"
+                        stroke="white"
+                        strokeWidth="2"
+                        fill="none"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.5, delay: 2.3, type: "spring" }}
+                    />
+
+                    {/* Scanning effect */}
+                    <motion.line
+                        x1="200"
+                        y1="300"
+                        x2="400"
+                        y2="300"
+                        stroke="#A855F7"
+                        strokeWidth="2"
+                        strokeDasharray="5 5"
+                        initial={{ opacity: 0 }}
+                        animate={{
+                            opacity: [0, 1, 0],
+                            y: [270, 330, 270],
+                        }}
+                        transition={{
+                            duration: 3,
+                            repeat: Number.POSITIVE_INFINITY,
+                            repeatType: "loop",
+                        }}
+                    />
+
+                    <defs>
+                        <radialGradient
+                            id="gradient1"
+                            cx="0"
+                            cy="0"
+                            r="1"
+                            gradientUnits="userSpaceOnUse"
+                            gradientTransform="translate(300 300) rotate(90) scale(150)"
+                        >
+                            <stop stopColor="#D946EF" />
+                            <stop offset="1" stopColor="#A855F7" stopOpacity="0" />
+                        </radialGradient>
+
+                        <radialGradient
+                            id="gradient2"
+                            cx="0"
+                            cy="0"
+                            r="1"
+                            gradientUnits="userSpaceOnUse"
+                            gradientTransform="translate(300 300) rotate(90) scale(80)"
+                        >
+                            <stop stopColor="#A855F7" />
+                            <stop offset="1" stopColor="#D946EF" stopOpacity="0" />
+                        </radialGradient>
+                    </defs>
+                </svg>
+
+                <motion.div
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 2.4, duration: 0.5 }}
+                ></motion.div>
+            </div>
         </motion.div>
-    );
-}
-
-function UserMenu() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        setIsLoggedIn(!!token);
-    }, []);
-
-    // return (
-    //     <div className="relative">
-    //         <motion.button
-    //             className="flex items-center space-x-2 bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300"
-    //             onClick={() => setIsOpen(!isOpen)}
-    //             whileHover={{ scale: 1.05 }}
-    //             whileTap={{ scale: 0.95 }}
-    //         >
-    //             <User size={20} />
-    //             <ChevronDown size={20} />
-    //         </motion.button>
-    //
-    //         {isOpen && (
-    //             <motion.div
-    //                 className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl overflow-hidden"
-    //                 initial={{ opacity: 0, y: -20 }}
-    //                 animate={{ opacity: 1, y: -10 }}
-    //                 exit={{ opacity: 0, y: -20 }}
-    //                 transition={{ duration: 0.2 }}
-    //             >
-    //                 {isLoggedIn ? (
-    //                     <>
-    //                         <a href="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-    //                             <Settings size={18} className="inline mr-2" /> Profile
-    //                         </a>
-    //                         <a href="/logout" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-    //                             <LogOut size={18} className="inline mr-2" /> Logout
-    //                         </a>
-    //                     </>
-    //                 ) : (
-    //                     <a href="/voting-instructions" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-    //                         <HelpCircle size={18} className="inline mr-2" /> Instructions
-    //                     </a>
-    //                 )}
-    //                 <a href="/about" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-    //                     <HelpCircle size={18} className="inline mr-2" /> About
-    //                 </a>
-    //             </motion.div>
-    //         )}
-    //     </div>
-    // );
+    )
 }
 
 export function LoginPage() {
     return (
-        <main className="min-h-screen w-screen flex items-center justify-center bg-gradient-to-b from-purple-950 via-purple-700 to-pink-700 overflow-hidden">
-            <div className="absolute top-4 right-4">
-                <UserMenu />
+        <main className="min-h-screen w-screen flex flex-col md:flex-row items-center justify-center bg-gradient-to-br from-purple-950 via-purple-800 to-pink-800 overflow-hidden p-8">
+            <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute top-0 -left-40 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+                <div className="absolute bottom-0 -right-40 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+
+                {/* Animated grid background */}
+                <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:50px_50px] opacity-20"></div>
+
+                {/* Animated particles */}
+                {[...Array(30)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute rounded-full bg-white/20 backdrop-blur-sm"
+                        style={{
+                            width: Math.random() * 30 + 5,
+                            height: Math.random() * 30 + 5,
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                        }}
+                        animate={{
+                            x: [0, Math.random() * 100 - 50],
+                            y: [0, Math.random() * 100 - 50],
+                            opacity: [0, Math.random() * 0.5 + 0.1, 0],
+                            scale: [0, Math.random() + 0.5, 0],
+                        }}
+                        transition={{
+                            duration: Math.random() * 20 + 10,
+                            repeat: Number.POSITIVE_INFINITY,
+                            repeatType: "loop",
+                            ease: "easeInOut",
+                            delay: Math.random() * 5,
+                        }}
+                    />
+                ))}
             </div>
-            <div className="w-full px-4 py-8 flex flex-col md:flex-row items-center justify-between">
-                <LoginIllustration />
-                <div className="w-full md:w-1/2 flex justify-center">
+
+            <div className="container mx-auto flex flex-col md:flex-row items-center justify-center gap-12 relative z-10">
+                <div className="w-full md:w-1/2 flex justify-center md:justify-end pr-0 md:pr-8">
+                    <SecurityIllustration />
+                </div>
+                <div className="w-full md:w-1/2 flex justify-center md:justify-start pl-0 md:pl-8">
                     <LoginForm />
                 </div>
             </div>
         </main>
-    );
+    )
 }
+
+export default LoginPage
+
