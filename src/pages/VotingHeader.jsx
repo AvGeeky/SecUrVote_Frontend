@@ -532,7 +532,7 @@ function VotingHeader() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.9, duration: 0.5 }}
                         >
-                            <ActionButton to="/voting-instructions" icon={BookOpen}>
+                            <ActionButton to="/voting-instructionss" icon={BookOpen}>
                                 Instructions
                             </ActionButton>
                             <ActionButton to="/login" icon={LogIn} primary={false}>
@@ -726,10 +726,10 @@ function VotingHeader() {
                         whileHover={{ scale: 1.1 }}
                         className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-200 mb-2"
                     >
-                        SSN COLLEGE OF ENGINEERING, KALAVAKKAM
+                        Made at SSN COLLEGE OF ENGINEERING, KALAVAKKAM
                     </motion.p>
                     <motion.p whileHover={{ scale: 1.1 }} className="text-lg text-pink-300">
-                        Made with ❣️ by Saipranav M, Rahul V S and Pragadish
+                        Made with ❣️ by Saipranav M & Rahul V S
                     </motion.p>
                 </motion.footer>
             </div>

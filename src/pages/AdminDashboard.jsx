@@ -182,7 +182,7 @@ function AdminSidebar({ activeTab, setActiveTab, theme, setTheme }) {
     const handleLogout = () => {
         localStorage.removeItem("jwtToken")
         localStorage.removeItem("isAdmin")
-        window.location.href = "/login"
+        window.location.href = "/"
     }
 
     return (
@@ -1144,7 +1144,7 @@ function DeleteData({ theme }) {
                     setTimeout(() => {
                         localStorage.removeItem("jwtToken")
                         localStorage.removeItem("isAdmin")
-                        window.location.href = "/login"
+                        window.location.href = "/"
                     }, 1500)
                 } else {
                     setError(response?.data?.message || "Failed to delete all data")
