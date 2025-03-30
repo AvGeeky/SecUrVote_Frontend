@@ -13,10 +13,10 @@ import {VotingSteps} from "./pages/VotingSteps";
 import VotingInstructionss from "./pages/VotingInstructionss.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AdminVerification from "./pages/AdminVerification.jsx";
-import PersonalInfoStatic from "./pages/PersonalInfo-static"
-import VotingInstructionsStatic from "./pages/VotingInstructions-static"
-import VotingPanelStatic from "./pages/VotingPanel-static"
-import AdminDashboardStatic from "./pages/AdminDashboard-static"
+import PersonalInfoStatic from "./pages/Personalinfo-static.jsx"
+import VotingInstructionsStatic from "./pages/Votinginstructions-static.jsx"
+import VotingPanelStatic from "./pages/VotingPanel-static.jsx"
+import AdminDashboardStatic from "./pages/AdminDashboard-static.jsx"
 function App() {
     return (
         <Router>
