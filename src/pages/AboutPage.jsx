@@ -1,19 +1,19 @@
 import * as React from "react";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export function AboutPage() {
     return (
         <main
-            className="min-h-screen w-screen overflow-x-hidden bg-gradient-to-b from-blue-800 to-green-400 text-white"
+            className="min-h-screen w-screen overflow-x-hidden bg-gradient-to-b from-purple-950 via-purple-800 to-pink-800 text-white"
             role="main"
-            aria-label="About SafeVote"
+            aria-label="About SecurVote"
         >
             <div className="w-screen max-w-[1400px] mx-auto px-4 lg:px-8 py-16 lg:py-24">
                 <section className="flex flex-col lg:flex-row gap-8 lg:gap-16">
                     {/* Title Section */}
                     <div className="lg:w-1/4">
                         <h1 className="text-5xl lg:text-6xl font-bold text-white mb-8 lg:mb-0 lg:sticky lg:top-24">
-                            About SafeVote
+                            About SecurVote
                         </h1>
                     </div>
 
@@ -22,43 +22,45 @@ export function AboutPage() {
                         {/* Introduction */}
                         <div className="prose prose-lg prose-invert">
                             <p className="text-xl leading-relaxed">
-                                <span className="font-semibold text-sky-300">SafeVote</span> is an advanced, secure voting platform engineered to uphold
-                                the integrity and confidentiality of digital voting. Our system represents the future of democratic participation,
-                                combining cutting-edge technology with user-friendly design.
+                                SecurVote is a cutting-edge, secure digital voting platform designed to ensure
+                                privacy, authenticity, and tamper-proof election processes. Leveraging advanced
+                                cryptographic techniques, SecurVote provides a trustworthy and transparent voting
+                                experience.
                             </p>
                         </div>
 
                         {/* Key Features Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
                             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                                <h2 className="text-xl font-semibold text-sky-300 mb-3">Blockchain Security</h2>
+                                <h2 className="text-xl font-semibold text-sky-300 mb-3">RSA-Encrypted Voting</h2>
                                 <p className="text-gray-100">
-                                    Utilizing advanced blockchain technology to ensure each vote is immutable,
-                                    traceable, and protected from tampering while maintaining complete anonymity.
+                                    Votes are encrypted using a two-stage RSA encryption process—first with
+                                    an admin keypair, then signed with a user keypair, ensuring vote integrity
+                                    and authenticity.
+                                </p>
+                            </div>
+
+                            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                                <h2 className="text-xl font-semibold text-sky-300 mb-3">Immutable Blockchain Ledger</h2>
+                                <p className="text-gray-100">
+                                    Each VoteBlock is encrypted and stored in an immutable MongoDB-backed blockchain,
+                                    preventing tampering and ensuring full transparency.
+                                </p>
+                            </div>
+
+                            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                                <h2 className="text-xl font-semibold text-sky-300 mb-3">Private Key Protection</h2>
+                                <p className="text-gray-100">
+                                    Private keys required for vote decryption are securely encrypted and stored in Supabase, ensuring
+                                    that only authorized entities can access the necessary cryptographic credentials.
                                 </p>
                             </div>
 
                             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                                 <h2 className="text-xl font-semibold text-sky-300 mb-3">Multi-Factor Authentication</h2>
                                 <p className="text-gray-100">
-                                    Robust identity verification system using biometric data, OTP verification,
-                                    and government ID validation to prevent fraudulent voting.
-                                </p>
-                            </div>
-
-                            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                                <h2 className="text-xl font-semibold text-sky-300 mb-3">Real-Time Analytics</h2>
-                                <p className="text-gray-100">
-                                    Advanced analytics dashboard providing real-time insights into voting patterns
-                                    and turnout while maintaining voter privacy.
-                                </p>
-                            </div>
-
-                            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                                <h2 className="text-xl font-semibold text-sky-300 mb-3">Accessibility</h2>
-                                <p className="text-gray-100">
-                                    Designed for all users with screen reader support, keyboard navigation,
-                                    and multiple language options to ensure inclusive participation.
+                                    Users authenticate through email OTP verification and PBKDF2-secured username-password login,
+                                    adding an extra layer of security to prevent unauthorized voting.
                                 </p>
                             </div>
                         </div>
@@ -67,31 +69,34 @@ export function AboutPage() {
                         <div className="bg-gradient-to-r from-blue-600/20 to-green-500/20 rounded-xl p-8 mt-12">
                             <h2 className="text-2xl font-bold text-white mb-4">Our Mission</h2>
                             <p className="text-lg text-gray-100">
-                                To revolutionize the democratic process by providing a secure, transparent, and
-                                accessible digital voting platform that empowers citizens to participate in
-                                elections with complete confidence in the integrity of their vote.
+                                To revolutionize digital elections by implementing a highly secure, cryptographically verifiable,
+                                and user-friendly voting platform that upholds democratic integrity.
                             </p>
                         </div>
 
-                        {/* Technical Specifications */}
+                        {/* Technical Highlights */}
                         <div className="mt-12">
-                            <h2 className="text-2xl font-bold text-white mb-6">Technical Excellence</h2>
+                            <h2 className="text-2xl font-bold text-white mb-6">Technical Highlights</h2>
                             <ul className="space-y-4 text-gray-100">
                                 <li className="flex items-start">
                                     <span className="text-sky-300 mr-2">•</span>
-                                    End-to-end encryption ensuring vote privacy and security
+                                    Two-stage RSA encryption for vote confidentiality
                                 </li>
                                 <li className="flex items-start">
                                     <span className="text-sky-300 mr-2">•</span>
-                                    Distributed ledger technology preventing single points of failure
+                                    HMAC-generated ‘Magic ID’ for ensuring vote uniqueness
                                 </li>
                                 <li className="flex items-start">
                                     <span className="text-sky-300 mr-2">•</span>
-                                    Smart contract implementation for automated and transparent vote counting
+                                    MongoDB-backed blockchain ledger for immutable vote storage
                                 </li>
                                 <li className="flex items-start">
                                     <span className="text-sky-300 mr-2">•</span>
-                                    Regular security audits and penetration testing
+                                    Supabase-stored private keys for vote decryption security
+                                </li>
+                                <li className="flex items-start">
+                                    <span className="text-sky-300 mr-2">•</span>
+                                    Multi-factor authentication using email OTP and PBKDF2 hashing
                                 </li>
                             </ul>
                         </div>

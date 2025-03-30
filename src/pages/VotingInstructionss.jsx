@@ -1,65 +1,58 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, Check, AlertTriangle, Home } from "lucide-react";
+import { ChevronDown, ChevronUp, Check, AlertTriangle } from "lucide-react";
 
-export function VotingInstructionss() {
+export function VotingInstructions() {
     const navigate = useNavigate();
     const [expandedStep, setExpandedStep] = useState(null);
 
     const votingSteps = [
         {
-            title: "Vote Freely",
+            title: "Enter Secret ID",
             content: [
-                "Make your voting decision independently.",
-                "Do not let anyone pressure or intimidate you.",
-                "If you feel threatened, please contact the provided helpline numbers."
+                "Use the secret ID sent to your email to access the registration page."
             ],
             icon: <Check className="w-6 h-6 text-green-400" />
         },
         {
-            title: "Prepare for Voting",
+            title: "Register and Authenticate",
             content: [
-                "Register and Login successfully.",
-                "Have your Unique HASH-ID ready.",
-                "Read through manifestos thoroughly and select your candidate carefully."
+                "Enter your email and request an OTP.",
+                "Enter the OTP sent to your email to verify your identity.",
+                "Complete the registration by creating a username and password."
             ],
             icon: <AlertTriangle className="w-6 h-6 text-yellow-400" />
         },
         {
-            title: "Voting Guidelines",
+            title: "Login",
             content: [
-                "You are allowed only one vote per election.",
-                "You may choose only one candidate per vote.",
-                "Candidate information is available on the voting page for your reference."
+                "Once login is enabled by the admin, use your created username and password to log in."
             ],
             icon: <Check className="w-6 h-6 text-green-400" />
         },
         {
-            title: "Selecting Your Candidate",
+            title: "Receive Your Magic ID",
             content: [
-                "Carefully select your desired candidate by confirming their name and symbol displayed on the screen."
+                "Upon successful registration, you will receive a unique 5-word Magic ID.",
+                "This Magic ID allows you to verify your vote anonymously after submission."
             ],
             icon: <Check className="w-6 h-6 text-green-400" />
         },
         {
-            title: "Submitting Your Vote",
+            title: "Vote",
             content: [
-                "After selecting your candidate, ensure you submit your vote to finalize the process."
+                "Check your details before proceeding.",
+                "Enter the candidate's code displayed in the circle at the top left.",
+                "Tick the checkbox to confirm your choice.",
+                "Submit your vote to finalize the process."
             ],
             icon: <Check className="w-6 h-6 text-green-400" />
         },
         {
-            title: "Results Announcement",
+            title: "Verify Your Vote",
             content: [
-                "Election results will be announced automatically after the election concludes."
-            ],
-            icon: <AlertTriangle className="w-6 h-6 text-yellow-400" />
-        },
-        {
-            title: "Vote Verification",
-            content: [
-                "You will have the opportunity to verify your vote status after you finish voting."
+                "Use your Magic ID to confirm that your vote has been securely recorded in the database."
             ],
             icon: <Check className="w-6 h-6 text-green-400" />
         }
@@ -151,32 +144,19 @@ export function VotingInstructionss() {
                             </motion.section>
                         ))}
                     </div>
-
-                    <motion.p
-                        className="mt-8 text-center font-semibold"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5, delay: 0.5 }}
-                    >
-                        Thank you for participating in your college's democratic process!
-                    </motion.p>
                 </article>
 
-                <nav className="flex justify-end gap-4">
-                    <motion.button
+                <div className="flex justify-center mt-6">
+                    <button
                         onClick={handleCancel}
-                        className="px-6 py-3 text-lg font-semibold text-purple-900 bg-white rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 transition-all flex items-center"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        aria-label="Return to home page"
+                        className="px-6 py-3 bg-pink-500 text-white rounded-lg font-semibold hover:bg-pink-600 transition-all duration-200 shadow-lg hover:shadow-xl"
                     >
-                        <Home className="w-5 h-5 mr-2" />
-                        BACK TO HOME
-                    </motion.button>
-                </nav>
+                        Back to Home
+                    </button>
+                </div>
             </motion.div>
         </main>
     );
 }
 
-export default VotingInstructionss;
+export default VotingInstructions;

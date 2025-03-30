@@ -781,7 +781,7 @@ export default function RegistrationPage() {
 
                 // Handle successful registration
                 if (response.data.status === "S") {
-                    alert(`Registration successful. Your Hash ID is: ${response.data.hashID}. Please store it for future use.`)
+                    alert(`Registration successful. Your Magic ID is: ${response.data.hashID}. Please store it for future use.`)
                     navigate("/login")
                 } else {
                     // Handle failure: display error message from backend response

@@ -16,7 +16,7 @@ const features = [
     },
     {
         icon: Hash,
-        title: "Verifiable votes using Hash-IDs",
+        title: "Verifiable votes using Magic-IDs",
         description: "Each vote is uniquely traceable and verifiable"
     },
     {

@@ -169,7 +169,7 @@ function VoterList() {
                 <section className="w-full mb-12">
                     <div className="flex justify-between items-center px-8 py-5 bg-white/20 backdrop-blur-sm rounded-xl mb-6">
                         <h2 className="text-xl font-semibold text-white flex items-center">
-                            <Users className="mr-2" /> ID
+                            <Users className="mr-2" /> MAGIC ID
                         </h2>
                         <div className="flex items-center">
                             <div className="relative mr-4">
