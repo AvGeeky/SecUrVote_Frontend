@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -21,9 +20,96 @@ import {
     BarChart2,
     Flag,
     ArrowRight,
-    Calendar
+    Calendar,
 } from "lucide-react"
-import useApiWithAuth from "../hooks/useApiWithAuth"
+
+// Generate random data for demo mode
+const generateRandomUsers = (count = 15) => {
+    const firstNames = [
+        "Saipranav",
+        "Vivaan",
+        "Rahul",
+        "Sai",
+        "Rahul",
+        "Amit",
+        "Kiran",
+        "Neha",
+        "Priya",
+        "Ananya",
+        "Ishaan",
+        "Riya",
+        "Tanvi",
+        "Kabir",
+        "Sanya"
+    ];
+
+    const lastNames = [
+        "Sharma",
+        "Verma",
+        "Reddy",
+        "Iyer",
+        "Patel",
+        "Nair",
+        "Gupta",
+        "Chopra",
+        "Agarwal",
+        "Kumar",
+        "Yadav",
+        "Mehta",
+        "Joshi",
+        "Singh",
+        "Das"
+    ];
+
+    const domains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "example.com"]
+
+    return Array.from({ length: count }, (_, i) => {
+        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
+        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
+        const domain = domains[Math.floor(Math.random() * domains.length)]
+        const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${domain}`
+        const phone = `+1 (${Math.floor(Math.random() * 900) + 100}) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`
+        const status = Math.random() > 0.5
+
+        return {
+            secret_id: `SC${i + 1}`,
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            phone,
+            status,
+        }
+    })
+}
+
+const generateRandomElectionResults = () => {
+    const candidates = [
+        "Rahul VS",
+        "Saipranav M",
+        "Amitabh Singh",
+        "Neha Iyer"
+    ];
+    const parties = [
+        "United People's Front",
+        "Harmony Alliance",
+        "Future Vision Party",
+        "Integrity League",
+        "New Horizon Movement",
+        "People's Voice Coalition",
+        "Evergreen Union",
+        "Synergy Party",
+        "Nation First Front",
+        "Progressive Synergy Forum"
+    ];
+
+
+    const results = {}
+    candidates.forEach((candidate, index) => {
+        results[`${candidate} (${parties[index]})`] = Math.floor(Math.random() * 500) + 50
+    })
+
+    return results
+}
 
 // Theme Toggle Component
 const ThemeToggle = ({ theme, setTheme }) => {
@@ -35,7 +121,7 @@ const ThemeToggle = ({ theme, setTheme }) => {
 
     return (
         <button
-            // onClick={handleThemeToggle}
+            onClick={handleThemeToggle}
             className="p-2 rounded-full bg-purple-800/50 text-white hover:bg-purple-700/50 transition-colors"
             aria-label="Toggle theme"
         >
@@ -52,19 +138,6 @@ function LoginToggleSection({ theme }) {
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState("")
     const isDark = theme === "dark"
-    const { apiCall } = useApiWithAuth()
-    const apiUrl = import.meta.env.VITE_API_URL
-
-    useEffect(() => {
-        // Fetch current login status when component mounts
-        fetchLoginStatus()
-    }, [])
-
-    const fetchLoginStatus = async () => {
-        // This is a placeholder - you would need to implement an API endpoint to get the current status
-        // For now, we'll just use the local state
-        setIsEnabled(true)
-    }
 
     const handleToggle = async () => {
         setIsAnimating(true)
@@ -72,24 +145,16 @@ function LoginToggleSection({ theme }) {
         setSuccess(false)
         setError("")
 
-        try {
-            const newState = !isEnabled
-            const response = await apiCall("POST", `${apiUrl}/loginModeChange?mode=${newState ? "on" : "off"}`)
-
-            if (response && response.status === 200) {
-                setIsEnabled(newState)
-                setSuccess(true)
-                setTimeout(() => setSuccess(false), 3000)
-            } else {
-                setError("Failed to toggle login status")
-            }
-        } catch (error) {
-            console.error("Error toggling login status:", error)
-            setError(error.message || "Failed to toggle login status")
-        } finally {
+        // Simulate API call
+        setTimeout(() => {
+            setIsEnabled(!isEnabled)
+            setSuccess(true)
             setLoading(false)
-            setTimeout(() => setIsAnimating(false), 500)
-        }
+            setTimeout(() => {
+                setSuccess(false)
+                setIsAnimating(false)
+            }, 1500)
+        }, 1000)
     }
 
     return (
@@ -164,15 +229,23 @@ function LoginToggleSection({ theme }) {
                     </AnimatePresence>
                 </div>
             </div>
+
+            <motion.div
+                className="mt-6 text-center text-yellow-300/70 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+            >
+                <p>DEMO MODE - No API calls are being made</p>
+            </motion.div>
         </motion.div>
     )
 }
 
 // Replace the entire AdminSidebar component with this collapsible version
-function AdminSidebar({ activeTab, setActiveTab, theme }) {
+function AdminSidebar({ activeTab, setActiveTab, theme, setTheme }) {
     const isDark = theme === "dark"
     const [collapsed, setCollapsed] = useState(false)
-    const { apiCall } = useApiWithAuth()
 
     const menuItems = [
         { id: "users", label: "User Management", icon: Users },
@@ -184,9 +257,8 @@ function AdminSidebar({ activeTab, setActiveTab, theme }) {
     ]
 
     const handleLogout = () => {
-        localStorage.removeItem("jwtToken")
-        localStorage.removeItem("isAdmin")
-        window.location.href = "/"
+        localStorage.removeItem("demoMode")
+        window.location.href = "/login"
     }
 
     return (
@@ -262,8 +334,8 @@ function AdminSidebar({ activeTab, setActiveTab, theme }) {
             >
                 {!collapsed && (
                     <div className="flex items-center justify-between w-full">
-                        <span className="text-white/70 text-sm"></span>
-                        <ThemeToggle theme={theme} setTheme={() => {}} />
+                        <span className="text-white/70 text-sm">DEMO MODE</span>
+                        <ThemeToggle theme={theme} setTheme={setTheme} />
                     </div>
                 )}
 
@@ -291,33 +363,14 @@ function UserManagement({ theme }) {
     const [searchTerm, setSearchTerm] = useState("")
     const [error, setError] = useState("")
     const isDark = theme === "dark"
-    const { apiCall } = useApiWithAuth()
-    const apiUrl = import.meta.env.VITE_API_URL
 
     useEffect(() => {
-        fetchUsers()
-    }, [])
-
-    const fetchUsers = async () => {
-        setLoading(true)
-        setError("")
-
-        try {
-            const response = await apiCall("GET", `${apiUrl}/getAllUserDetails`)
-
-            if (response && response.data) {
-                setUsers(response.data || [])
-            } else {
-                setUsers([])
-                setError("No user data available")
-            }
-        } catch (error) {
-            console.error("Error fetching users:", error)
-            setError("Failed to load users. Please try again.")
-        } finally {
+        // Simulate API call with random data
+        setTimeout(() => {
+            setUsers(generateRandomUsers(15))
             setLoading(false)
-        }
-    }
+        }, 1000)
+    }, [])
 
     const filteredUsers = users.filter(
         (user) =>
@@ -356,7 +409,13 @@ function UserManagement({ theme }) {
                         />
                     </div>
                     <motion.button
-                        onClick={fetchUsers}
+                        onClick={() => {
+                            setLoading(true)
+                            setTimeout(() => {
+                                setUsers(generateRandomUsers(15))
+                                setLoading(false)
+                            }, 1000)
+                        }}
                         className={`p-2 ${
                             isDark
                                 ? "bg-gray-700 text-purple-400 hover:bg-gray-600"
@@ -478,6 +537,15 @@ function UserManagement({ theme }) {
                     </table>
                 </div>
             )}
+
+            <motion.div
+                className="mt-6 text-center text-yellow-300/70 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+            >
+                <p>DEMO MODE - No API calls are being made</p>
+            </motion.div>
         </motion.div>
     )
 }
@@ -485,59 +553,17 @@ function UserManagement({ theme }) {
 // Replace the AddUser component with this version that auto-generates the secret code
 function AddUser({ theme }) {
     const [formData, setFormData] = useState({
-        secretcode: "",
+        secretcode: "SC" + (Math.floor(Math.random() * 900) + 100),
         Fname: "",
         Lname: "",
         email: "",
         phone: "",
     })
     const [loading, setLoading] = useState(false)
-    const [loadingSecretCode, setLoadingSecretCode] = useState(true)
+    const [loadingSecretCode, setLoadingSecretCode] = useState(false)
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState("")
     const isDark = theme === "dark"
-    const { apiCall } = useApiWithAuth()
-    const apiUrl = import.meta.env.VITE_API_URL
-
-    // Fetch all users to determine the next secret code
-    useEffect(() => {
-        fetchNextSecretCode()
-    }, [])
-
-    const fetchNextSecretCode = async () => {
-        setLoadingSecretCode(true)
-        try {
-            const response = await apiCall("GET", `${apiUrl}/getAllUserDetails`)
-
-            if (response && response.data) {
-                // Extract all secret codes that match the pattern SC##
-                const secretCodes = response.data
-                    .map((user) => user.secret_id)
-                    .filter((id) => /^SC\d+$/.test(id))
-                    .map((id) => Number.parseInt(id.replace("SC", ""), 10))
-
-                // Find the highest number and add 1
-                const nextNumber = secretCodes.length > 0 ? Math.max(...secretCodes) + 1 : 1
-
-                // Format with leading zeros if needed
-                const nextSecretCode = `SC${nextNumber}`
-
-                setFormData((prev) => ({
-                    ...prev,
-                    secretcode: nextSecretCode,
-                }))
-            }
-        } catch (error) {
-            console.error("Error fetching users for secret code:", error)
-            // Set a default secret code if there's an error
-            setFormData((prev) => ({
-                ...prev,
-                secretcode: "SC1",
-            }))
-        } finally {
-            setLoadingSecretCode(false)
-        }
-    }
 
     const handleChange = (field) => (e) => {
         if (field !== "secretcode") {
@@ -555,34 +581,19 @@ function AddUser({ theme }) {
         setSuccess(false)
         setError("")
 
-        try {
-            // Using the addUserDetails endpoint with query parameters
-            const url = `${apiUrl}/addUserDetails?secretcode=${encodeURIComponent(formData.secretcode)}&Fname=${encodeURIComponent(formData.Fname)}&Lname=${encodeURIComponent(formData.Lname)}&email=${encodeURIComponent(formData.email)}&phone=${encodeURIComponent(formData.phone)}`
-
-            const response = await apiCall("GET", url)
-
-            if (response && response.status === 200) {
-                setSuccess(true)
-                // Reset form except for secret code which will be updated
-                setFormData({
-                    secretcode: formData.secretcode,
-                    Fname: "",
-                    Lname: "",
-                    email: "",
-                    phone: "",
-                })
-                // Fetch the next secret code after successful addition
-                fetchNextSecretCode()
-                setTimeout(() => setSuccess(false), 3000)
-            } else {
-                setError(response?.data?.message || "Failed to add user")
-            }
-        } catch (error) {
-            console.error("Error adding user:", error)
-            setError(error.message || "Error adding user. Please try again.")
-        } finally {
+        // Simulate API call
+        setTimeout(() => {
+            setSuccess(true)
+            setFormData({
+                secretcode: "SC" + (Math.floor(Math.random() * 900) + 100),
+                Fname: "",
+                Lname: "",
+                email: "",
+                phone: "",
+            })
             setLoading(false)
-        }
+            setTimeout(() => setSuccess(false), 3000)
+        }, 1000)
     }
 
     return (
@@ -776,6 +787,15 @@ function AddUser({ theme }) {
                     </motion.div>
                 </form>
             </motion.div>
+
+            <motion.div
+                className="mt-6 text-center text-yellow-300/70 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+            >
+                <p>DEMO MODE - No API calls are being made</p>
+            </motion.div>
         </motion.div>
     )
 }
@@ -791,8 +811,6 @@ function ViewResults({ theme }) {
     const [error, setError] = useState("")
     const [showResults, setShowResults] = useState(false)
     const isDark = theme === "dark"
-    const { apiCall } = useApiWithAuth()
-    const apiUrl = import.meta.env.VITE_API_URL
 
     const fetchResults = async () => {
         if (!passphrase) {
@@ -804,24 +822,12 @@ function ViewResults({ theme }) {
         setError("")
         setEmailError("")
 
-        try {
-            const url = `${apiUrl}/viewResultsWithPassphrase?sendMail=no&passphrase=${encodeURIComponent(passphrase)}`
-            const response = await apiCall("GET", url)
-
-            if (response && response.data) {
-                setResults(response.data)
-                setShowResults(true)
-            } else {
-                setError("No results available or invalid passphrase")
-                setShowResults(false)
-            }
-        } catch (error) {
-            console.error("Error fetching results:", error)
-            setError("Failed to load results. Please check your passphrase and try again.")
-            setShowResults(false)
-        } finally {
+        // Simulate API call with random data
+        setTimeout(() => {
+            setResults(generateRandomElectionResults())
+            setShowResults(true)
             setLoading(false)
-        }
+        }, 1000)
     }
 
     // Send election results email to all users
@@ -835,22 +841,12 @@ function ViewResults({ theme }) {
         setEmailSuccess(false)
         setEmailError("")
 
-        try {
-            const url = `${apiUrl}/viewResultsWithPassphrase?sendMail=yes&passphrase=${encodeURIComponent(passphrase)}`
-            const response = await apiCall("GET", url)
-
-            if (response && response.status === 200) {
-                setEmailSuccess(true)
-                setTimeout(() => setEmailSuccess(false), 3000)
-            } else {
-                setEmailError(response?.data?.message || "Failed to send emails.")
-            }
-        } catch (error) {
-            console.error("Error sending emails:", error)
-            setEmailError(error.message || "Error sending emails. Please try again.")
-        } finally {
+        // Simulate API call
+        setTimeout(() => {
+            setEmailSuccess(true)
             setSendingEmail(false)
-        }
+            setTimeout(() => setEmailSuccess(false), 3000)
+        }, 1500)
     }
 
     // Format results for display
@@ -886,7 +882,7 @@ function ViewResults({ theme }) {
                 <div className={`${isDark ? "bg-gray-700" : "bg-white"} rounded-xl shadow-md p-6 max-w-2xl mx-auto`}>
                     <div className="space-y-4">
                         <p className={`${isDark ? "text-gray-300" : "text-gray-600"}`}>
-                            Enter the passphrase to view election results and send email notifications.
+                            Enter the passphrase to view election results and send email notifications. (Demo Mode- Enter any value!)
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-3">
@@ -1061,6 +1057,15 @@ function ViewResults({ theme }) {
                     </p>
                 </motion.div>
             )}
+
+            <motion.div
+                className="mt-6 text-center text-yellow-300/70 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+            >
+                <p>DEMO MODE - No API calls are being made</p>
+            </motion.div>
         </motion.div>
     )
 }
@@ -1075,8 +1080,6 @@ function DeleteData({ theme }) {
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState("")
     const isDark = theme === "dark"
-    const { apiCall } = useApiWithAuth()
-    const apiUrl = import.meta.env.VITE_API_URL
 
     const handleDelete = async () => {
         if (!deleteType) {
@@ -1102,50 +1105,15 @@ function DeleteData({ theme }) {
         setError("")
         setSuccess(false)
 
-        try {
-            if (deleteType === "all") {
-                // Using the deleteAllofValues endpoint
-                const response = await apiCall("GET", `${apiUrl}/deleteAllOfValues`)
-
-                if (response && response.status === 200) {
-                    setSuccess(true)
-                    // Logout user after successful deletion of all data
-                    setTimeout(() => {
-                        localStorage.removeItem("jwtToken")
-                        localStorage.removeItem("isAdmin")
-                        window.location.href = "/"
-                    }, 1500)
-                } else {
-                    setError(response?.data?.message || "Failed to delete all data")
-                }
-            } else if (deleteType === "specific" && secretCode) {
-                // Using the deleteBySecretCode endpoint
-                const response = await apiCall(
-                    "GET",
-                    `${apiUrl}/deleteBySecretCode?user_seccode=${encodeURIComponent(secretCode)}`,
-                )
-
-                if (response && response.status === 200) {
-                    setSuccess(true)
-                } else {
-                    setError(response?.data?.message || "Failed to delete data for this code")
-                }
-            } else {
-                setError("Invalid delete operation")
-                setLoading(false)
-                return
-            }
-
+        // Simulate API call
+        setTimeout(() => {
+            setSuccess(true)
             setShowConfirmation(false)
             setSecretCode("")
             setConfirmText("")
-            setTimeout(() => setSuccess(false), 3000)
-        } catch (error) {
-            console.error("Error deleting data:", error)
-            setError(error.message || "Failed to delete data. Please try again.")
-        } finally {
             setLoading(false)
-        }
+            setTimeout(() => setSuccess(false), 3000)
+        }, 1500)
     }
 
     return (
@@ -1315,127 +1283,16 @@ function DeleteData({ theme }) {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <motion.div
+                className="mt-6 text-center text-yellow-300/70 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+            >
+                <p>DEMO MODE - No API calls are being made</p>
+            </motion.div>
         </motion.div>
-    )
-}
-
-// Update the main AdminDashboard component to use the new sidebar
-export default function AdminDashboard() {
-    const [activeTab, setActiveTab] = useState("users")
-    const [theme, setTheme] = useState("dark")
-    const { apiCall } = useApiWithAuth()
-    const apiUrl = import.meta.env.VITE_API_URL
-
-    // Add subtle page transition animations
-    const pageVariants = {
-        initial: { opacity: 0, x: -10 },
-        animate: { opacity: 1, x: 0 },
-        exit: { opacity: 0, x: 10 },
-    }
-
-    const renderTabContent = () => {
-        switch (activeTab) {
-            case "users":
-                return (
-                    <motion.div
-                        key="users"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={pageVariants}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <UserManagement theme={theme} />
-                    </motion.div>
-                )
-            case "add-user":
-                return (
-                    <motion.div
-                        key="add-user"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={pageVariants}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <AddUser theme={theme} />
-                    </motion.div>
-                )
-            case "elections":
-                return (
-                    <motion.div
-                        key="elections"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={pageVariants}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <CreateElections theme={theme} />
-                    </motion.div>
-                )
-            case "results":
-                return (
-                    <motion.div
-                        key="results"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={pageVariants}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <ViewResults theme={theme} />
-                    </motion.div>
-                )
-            case "login-toggle":
-                return (
-                    <motion.div
-                        key="login-toggle"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={pageVariants}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <LoginToggleSection theme={theme} />
-                    </motion.div>
-                )
-            case "delete":
-                return (
-                    <motion.div
-                        key="delete"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={pageVariants}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <DeleteData theme={theme} />
-                    </motion.div>
-                )
-            default:
-                return (
-                    <motion.div
-                        key="users-default"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={pageVariants}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <UserManagement theme={theme} />
-                    </motion.div>
-                )
-        }
-    }
-
-    return (
-        <div className={`flex h-screen w-screen ${theme === "dark" ? "bg-gray-900" : "bg-gray-100"}`}>
-            <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} theme={theme} />
-            <div className="flex-1 overflow-auto">
-                <AnimatePresence mode="wait">{renderTabContent()}</AnimatePresence>
-            </div>
-        </div>
     )
 }
 
@@ -1446,13 +1303,17 @@ function CreateElections({ theme }) {
         date: new Date().toISOString().split("T")[0],
         passphrase: "",
     })
-    const [candidates, setCandidates] = useState([{ name: "", party: "", details: "" }])
+    const [candidates, setCandidates] = useState([
+        { name: "Rahul VS", party: "United People's Front", details: "A" },
+        { name: "Saipranav M", party: "Harmony Alliance", details: "B" },
+        { name: "Amitabh Singh", party: "Future Vision Party", details: "C" },
+        { name: "Neha Iyer", party: "Integrity League", details: "D" },
+        { name: "Kabir Das", party: "New Horizon Movement", details: "E" }
+    ])
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState("")
     const isDark = theme === "dark"
-    const { apiCall } = useApiWithAuth()
-    const apiUrl = import.meta.env.VITE_API_URL
 
     const handleChange = (field) => (e) => {
         setElectionConfig((prev) => ({
@@ -1485,24 +1346,12 @@ function CreateElections({ theme }) {
         setSuccess(false)
         setError("")
 
-        try {
-            // Using the startElectionsWithPassphrase endpoint
-            const url = `${apiUrl}/startElectionsWithPassphrase?elecname=${encodeURIComponent(electionConfig.elecname)}&date=${electionConfig.date}&passphrase=${encodeURIComponent(electionConfig.passphrase)}`
-
-            const response = await apiCall("POST", url, candidates)
-
-            if (response && response.status === 200) {
-                setSuccess(true)
-                setTimeout(() => setSuccess(false), 3000)
-            } else {
-                setError(response?.data?.message || "Failed to create election")
-            }
-        } catch (error) {
-            console.error("Error creating election:", error)
-            setError(error.message || "Error creating election. Please try again.")
-        } finally {
+        // Simulate API call
+        setTimeout(() => {
+            setSuccess(true)
             setLoading(false)
-        }
+            setTimeout(() => setSuccess(false), 3000)
+        }, 1500)
     }
 
     return (
@@ -1689,9 +1538,142 @@ function CreateElections({ theme }) {
                     </div>
                 </div>
             </form>
+
+            <motion.div
+                className="mt-6 text-center text-yellow-300/70 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+            >
+                <p>DEMO MODE - No API calls are being made</p>
+            </motion.div>
         </motion.div>
     )
+}
 
+// Update the main AdminDashboard component to use the new sidebar
+export default function AdminDashboardStatic() {
+    const [activeTab, setActiveTab] = useState("users")
+    const [theme, setTheme] = useState("dark")
 
+    // Add subtle page transition animations
+    const pageVariants = {
+        initial: { opacity: 0, x: -10 },
+        animate: { opacity: 1, x: 0 },
+        exit: { opacity: 0, x: 10 },
+    }
+
+    useEffect(() => {
+        // Check if we're in demo mode
+        const demoMode = localStorage.getItem("demoMode")
+        if (!demoMode) {
+            window.location.href = "/login"
+        }
+    }, [])
+
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case "users":
+                return (
+                    <motion.div
+                        key="users"
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        variants={pageVariants}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <UserManagement theme={theme} />
+                    </motion.div>
+                )
+            case "add-user":
+                return (
+                    <motion.div
+                        key="add-user"
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        variants={pageVariants}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <AddUser theme={theme} />
+                    </motion.div>
+                )
+            case "elections":
+                return (
+                    <motion.div
+                        key="elections"
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        variants={pageVariants}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <CreateElections theme={theme} />
+                    </motion.div>
+                )
+            case "results":
+                return (
+                    <motion.div
+                        key="results"
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        variants={pageVariants}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <ViewResults theme={theme} />
+                    </motion.div>
+                )
+            case "login-toggle":
+                return (
+                    <motion.div
+                        key="login-toggle"
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        variants={pageVariants}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <LoginToggleSection theme={theme} />
+                    </motion.div>
+                )
+            case "delete":
+                return (
+                    <motion.div
+                        key="delete"
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        variants={pageVariants}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <DeleteData theme={theme} />
+                    </motion.div>
+                )
+            default:
+                return (
+                    <motion.div
+                        key="users-default"
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        variants={pageVariants}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <UserManagement theme={theme} />
+                    </motion.div>
+                )
+        }
+    }
+
+    return (
+        <div className={`flex h-screen w-screen ${theme === "dark" ? "bg-gray-900" : "bg-gray-100"}`}>
+            <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} theme={theme} setTheme={setTheme} />
+            <div className="flex-1 overflow-auto">
+                <AnimatePresence mode="wait">{renderTabContent()}</AnimatePresence>
+            </div>
+        </div>
+    )
 }
 

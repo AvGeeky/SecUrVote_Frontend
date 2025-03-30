@@ -13,7 +13,10 @@ import {VotingSteps} from "./pages/VotingSteps";
 import VotingInstructionss from "./pages/VotingInstructionss.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AdminVerification from "./pages/AdminVerification.jsx";
-
+import PersonalInfoStatic from "./pages/PersonalInfo-static"
+import VotingInstructionsStatic from "./pages/VotingInstructions-static"
+import VotingPanelStatic from "./pages/VotingPanel-static"
+import AdminDashboardStatic from "./pages/AdminDashboard-static"
 function App() {
     return (
         <Router>
@@ -32,6 +35,10 @@ function App() {
                 <Route path="/voting-instructionss" element={<VotingInstructionss/>}/>
                 <Route path="/admin-dashboard" element={<AdminDashboard/>}/>
                 <Route path="/admin-verification" element={<AdminVerification/>}/>
+                <Route path="/personal-info-static" element={<PersonalInfoStatic />} />
+                <Route path="/voting-instructions-static" element={<VotingInstructionsStatic />} />
+                <Route path="/voting-panel-static" element={<VotingPanelStatic />} />
+                <Route path="/admin-dashboard-static" element={<AdminDashboardStatic />} />
             </Routes>
         </Router>
     );
