@@ -2956,7 +2956,7 @@ function CreateElections({ theme }) {
 
                     <div className="space-y-2">
                         <label className={`block text-sm font-medium ${isDark ? "text-gray-200" : "text-gray-700"}`}>
-                            Passphrase (for result viewing)
+                            Passphrase (Warning: Passphrase is required to view results. It can not be reset under any circumstance.)
                         </label>
                         <input
                             type="text"
