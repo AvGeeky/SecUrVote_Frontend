@@ -302,7 +302,7 @@ function VotingHeader() {
     const navItems = [
         { name: "About", path: "/about", id: "about" },
         { name: "Features", path: "/features", id: "features" },
-        { name: "Steps", path: "/voting-steps", id: "steps" },
+        { name: "Steps", path: "/voting-instructionss", id: "steps" },
         { name: "Verify", path: "/voter-list", id: "verify" },
     ]
 
