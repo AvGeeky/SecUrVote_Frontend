@@ -728,8 +728,25 @@ function VotingHeader() {
                     >
                         Made at SSN COLLEGE OF ENGINEERING, KALAVAKKAM
                     </motion.p>
-                    <motion.p whileHover={{ scale: 1.1 }} className="text-lg text-pink-300">
-                        Made with ❣️ by Saipranav M & Rahul V S
+                    <motion.p whileHover={{scale: 1.1}} className="text-lg text-pink-300">
+                        Made with ❣️ by{' '}
+                        <a
+                            href="www.linkedin.com/in/saipranav-m"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline"
+                        >
+                            Saipranav M
+                        </a>
+                        {' & '}
+                        <a
+                            href="https://www.linkedin.com/in/rahul-v-s/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline"
+                        >
+                            Rahul V S
+                        </a>
                     </motion.p>
                 </motion.footer>
             </div>

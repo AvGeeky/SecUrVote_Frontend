@@ -59,7 +59,7 @@ export function AboutPage() {
                                 <p className="text-gray-100">
                                     During verification, the magic-id is used to retrieve the Secret-Id from the database which is compared with the
                                     decrypted HMAC hashed Secret-Id, to verify the uniqueness of votes (Secret Id's are unique). The signature is verified
-                                    with the user keypair next, and then the votesblocks are stripped of their personal identifiable information, randomised,
+                                    with the user keypair next, and then the voteblocks are stripped of their personal identifiable information, randomised,
                                     and then the vote keypair is used to decrypt the votes and find out the results.
                                     </p>
                             </div>
