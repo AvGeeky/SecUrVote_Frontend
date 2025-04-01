@@ -731,7 +731,7 @@ function VotingHeader() {
                     <motion.p whileHover={{scale: 1.1}} className="text-lg text-pink-300">
                         Made with ❣️ by{' '}
                         <a
-                            href="www.linkedin.com/in/saipranav-m"
+                            href="https://www.linkedin.com/in/saipranav-m"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="underline"
